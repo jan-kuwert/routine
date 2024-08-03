@@ -1,6 +1,6 @@
 # routine
 
-A new Flutter project.
+A Flutter App for daily tasks and self management 
 
 ## Getting Started
 
