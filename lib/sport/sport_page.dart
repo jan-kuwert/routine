@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:routine/routine_font_icons.dart';
+import 'package:routine/widgets/custom_card_widget.dart';
+import 'package:routine/widgets/daily_card_widget.dart';
+import 'package:routine/widgets/goal_card_widget.dart';
 
 class SportPage extends StatefulWidget {
   const SportPage({super.key});
@@ -26,10 +29,23 @@ class _SportPageState extends State<SportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sport Page'),
+        title: const Text('Sport'),
       ),
       body: const Center(
-        child: Text('Sport Page'),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: <Widget>[
+                  CustomCardWidget(
+                      title: 'Active Goal', child: GoalCardWidget()),
+                  CustomCardWidget(title: 'Today', child: DailyCardWidget())
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,

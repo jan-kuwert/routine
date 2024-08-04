@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:routine/home/home_page.dart';
 import 'package:routine/routine_font_icons.dart';
 import 'package:routine/sport/sport_page.dart';
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Home Page'),
     );
   }
 }
@@ -80,15 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       body: <Widget>[
         /// Home page
-        const Card(
-          shadowColor: Colors.transparent,
-          margin: EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Text('Home page'),
-            ),
-          ),
-        ),
+        const HomePage(),
         const SportPage(),
         const Card(
           shadowColor: Colors.transparent,
