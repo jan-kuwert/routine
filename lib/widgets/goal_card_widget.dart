@@ -22,7 +22,7 @@ class GoalCardWidget extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(bottom: 16.0),
+              padding: EdgeInsets.only(bottom: 8.0),
               child: Row(
                 children: [
                   Padding(
