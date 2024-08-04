@@ -24,6 +24,7 @@ class GoalCardWidget extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: EdgeInsets.only(right: 4.0),
@@ -32,11 +33,14 @@ class GoalCardWidget extends StatelessWidget {
                       size: 24.0,
                     ),
                   ),
-                  Text(
-                    '50 Pushups/Day for 30 Days',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w500,
+                  Flexible(
+                    child: Text(
+                      '50 Pushups/Day for 30 Days',
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],

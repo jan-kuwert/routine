@@ -20,7 +20,7 @@ class _CustomCardWidgetState extends State<CustomCardWidget> {
         padding: const EdgeInsets.only(left: 20.0),
         child: Row(
           children: [
-            Text(widget.title, style: const TextStyle(fontSize: 16.0)),
+            Text(widget.title, style: const TextStyle(fontSize: 18.0)),
           ],
         ),
       ),

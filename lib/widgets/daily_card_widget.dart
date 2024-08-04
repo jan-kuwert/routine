@@ -45,90 +45,175 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 0.0),
-                        child: Text('$pushupCounter/$maxPushups Pushups'),
-                      ),
-                      ButtonBar(
-                        children: [
-                          TextButton.icon(
-                            label: Text('$buttonValue10'),
-                            icon: const Icon(RoutineFont.add),
-                            onPressed: () {
-                              _incrementPushups(buttonValue10);
-                            },
-                          ),
-                          TextButton.icon(
-                            label: Text('$buttonValue15'),
-                            icon: const Icon(RoutineFont.add),
-                            onPressed: () {
-                              _incrementPushups(buttonValue15);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  LinearProgressIndicator(
-                    value: pushupCounter / maxPushups,
-                    minHeight: 10.0,
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ],
-              ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: LinearProgressIndicator(
+              value:
+                  (pushupCounter / maxPushups + pullupCounter / maxPullups) / 2,
+              minHeight: 1.0,
+              color: const Color.fromARGB(10, 0, 0, 0),
+              backgroundColor: Colors.transparent,
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text('$pullupCounter/$maxPullups Pullups'),
-                      ),
-                      ButtonBar(
-                        children: [
-                          TextButton.icon(
-                            label: Text('$buttonValue5'),
-                            icon: const Icon(RoutineFont.add),
-                            onPressed: () {
-                              _incrementPullups(buttonValue5);
-                            },
-                          ),
-                          TextButton.icon(
-                            label: Text('$buttonValue10'),
-                            icon: const Icon(RoutineFont.add),
-                            onPressed: () {
-                              _incrementPullups(buttonValue10);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                '$pushupCounter/$maxPushups Pushups',
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                ),
+                                softWrap: true,
+                              ),
+                            ),
+                            if (pushupCounter == maxPushups)
+                              const Icon(
+                                RoutineFont.check,
+                                color: Colors.green,
+                              )
+                            else
+                              ButtonBar(
+                                children: [
+                                  if (pushupCounter <
+                                      maxPushups - buttonValue10)
+                                    TextButton(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            WidgetStateProperty.all<Color>(
+                                                const Color.fromARGB(
+                                                    25, 0, 0, 0)),
+                                      ),
+                                      onPressed: () {
+                                        _incrementPushups(buttonValue10);
+                                      },
+                                      child: Text('+$buttonValue10'),
+                                    ),
+                                  if (pushupCounter <
+                                      maxPushups - buttonValue15)
+                                    TextButton(
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            WidgetStateProperty.all<Color>(
+                                                const Color.fromARGB(
+                                                    25, 0, 0, 0)),
+                                      ),
+                                      onPressed: () {
+                                        _incrementPushups(buttonValue15);
+                                      },
+                                      child: Text('+$buttonValue15'),
+                                    ),
+                                  IconButton(
+                                    icon: const Icon(RoutineFont.check),
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty.all<
+                                              Color>(
+                                          const Color.fromARGB(25, 0, 0, 0)),
+                                    ),
+                                    onPressed: () {
+                                      _incrementPushups(
+                                          maxPushups - pushupCounter);
+                                    },
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                        if (pushupCounter != maxPushups)
+                          LinearProgressIndicator(
+                            value: pushupCounter / maxPushups,
+                            minHeight: 7.0,
+                            borderRadius: BorderRadius.circular(20.0),
+                          )
+                      ],
+                    ),
                   ),
-                  LinearProgressIndicator(
-                    value: pullupCounter / maxPullups,
-                    minHeight: 10.0,
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ],
-              ),
+                ),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '$pullupCounter/$maxPullups Pullups',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                            ),
+                            softWrap: true,
+                          ),
+                        ),
+                        if (pullupCounter == maxPullups)
+                          const Icon(
+                            RoutineFont.check,
+                            color: Colors.green,
+                          )
+                        else
+                          ButtonBar(
+                            children: [
+                              if (pullupCounter < maxPullups - buttonValue5)
+                                TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        WidgetStateProperty.all<Color>(
+                                            const Color.fromARGB(25, 0, 0, 0)),
+                                  ),
+                                  onPressed: () {
+                                    _incrementPullups(buttonValue5);
+                                  },
+                                  child: Text('+$buttonValue5'),
+                                ),
+                              if (pullupCounter < maxPullups - buttonValue10)
+                                TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        WidgetStateProperty.all<Color>(
+                                            const Color.fromARGB(25, 0, 0, 0)),
+                                  ),
+                                  onPressed: () {
+                                    _incrementPullups(buttonValue10);
+                                  },
+                                  child: Text('+$buttonValue10'),
+                                ),
+                              IconButton(
+                                icon: const Icon(RoutineFont.check),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStateProperty.all<Color>(
+                                          const Color.fromARGB(25, 0, 0, 0)),
+                                ),
+                                onPressed: () {
+                                  _incrementPullups(maxPullups - pullupCounter);
+                                },
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                    if (pushupCounter != maxPushups)
+                      LinearProgressIndicator(
+                        value: pullupCounter / maxPullups,
+                        minHeight: 7.0,
+                        borderRadius: BorderRadius.circular(20.0),
+                      )
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

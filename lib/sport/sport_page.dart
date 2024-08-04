@@ -28,13 +28,22 @@ class _SportPageState extends State<SportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sport'),
-      ),
-      body: const Center(
-        child: Column(
-          children: <Widget>[
-            Padding(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            title: const Text('Sport'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  // Navigate to the settings page using a named route.
+                  // Navigator.pushNamed(context, '/settings');
+                },
+              ),
+            ],
+          ),
+          const SliverToBoxAdapter(
+            child: Padding(
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
@@ -44,9 +53,10 @@ class _SportPageState extends State<SportPage> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
