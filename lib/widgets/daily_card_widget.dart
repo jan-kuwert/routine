@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:routine/routine_font_icons.dart';
 
 class DailyCardWidget extends StatefulWidget {
-  const DailyCardWidget({super.key});
+  final String title;
+
+  const DailyCardWidget({
+    super.key,
+    required this.title,
+  });
 
   @override
   State<DailyCardWidget> createState() => _DailyCardWidgetState();
 }
 
 class _DailyCardWidgetState extends State<DailyCardWidget> {
+  late TextEditingController _pullupController;
+  late FocusNode _focusNode;
+
   final int buttonValue5 = 5;
   final int buttonValue10 = 10;
   final int buttonValue15 = 15;
@@ -39,182 +48,194 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _pullupController = TextEditingController(text: pullupCounter.toString());
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _pullupController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      shadowColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: LinearProgressIndicator(
-              value:
-                  (pushupCounter / maxPushups + pullupCounter / maxPullups) / 2,
-              minHeight: 1.0,
-              color: const Color.fromARGB(10, 0, 0, 0),
-              backgroundColor: Colors.transparent,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Text(widget.title, style: const TextStyle(fontSize: 18.0)),
+                if (((pushupCounter / maxPushups + pullupCounter / maxPullups) /
+                        2) ==
+                    1)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      RoutineFont.done_all,
+                      color: Colors.green,
+                    ),
+                  ),
+              ],
+            ),
+            Text(
+                '${(((pushupCounter / maxPushups + pullupCounter / maxPullups) / 2) * 100).round()}%',
+                style: const TextStyle(fontSize: 18.0)),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Card(
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: LinearProgressIndicator(
+                  value: (pushupCounter / maxPushups +
+                          pullupCounter / maxPullups) /
+                      2,
+                  minHeight: 1.0,
+                  color: const Color.fromARGB(10, 0, 0, 0),
+                  backgroundColor: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Column(
                           children: [
-                            Flexible(
-                              child: Text(
-                                '$pushupCounter/$maxPushups Pushups',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                ),
-                                softWrap: true,
-                              ),
-                            ),
-                            if (pushupCounter == maxPushups)
-                              const Icon(
-                                RoutineFont.check,
-                                color: Colors.green,
-                              )
-                            else
-                              ButtonBar(
+                            GestureDetector(
+                              onTap: () {
+                                _focusNode.requestFocus();
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  if (pushupCounter <
-                                      maxPushups - buttonValue10)
-                                    TextButton(
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            WidgetStateProperty.all<Color>(
-                                                const Color.fromARGB(
-                                                    25, 0, 0, 0)),
+                                  Flexible(
+                                    child: Row(
+                                      children: [
+                                        Form(
+                                          child: IntrinsicWidth(
+                                            child: TextFormField(
+                                              focusNode: _focusNode,
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                              ),
+                                              controller: _pullupController,
+                                              validator: (String? value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Please enter some text';
+                                                }
+                                                return null;
+                                              },
+                                             
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                    2),
+                                              ],
+                                              keyboardType:
+                                                  TextInputType.number,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '/$maxPushups Pushups',
+                                          style: const TextStyle(
+                                            fontSize: 16.0,
+                                          ),
+                                          softWrap: true,
+                                        ),
+                                        if (pushupCounter == maxPushups)
+                                          const Padding(
+                                            padding: EdgeInsets.only(left: 8.0),
+                                            child: Icon(RoutineFont.check,
+                                                color: Colors.green),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  ButtonBar(
+                                    children: [
+                                      TextButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                                  const Color.fromARGB(
+                                                      25, 0, 0, 0)),
+                                        ),
+                                        onPressed: () {
+                                          _incrementPushups(buttonValue10);
+                                        },
+                                        child: Text('+$buttonValue10'),
                                       ),
-                                      onPressed: () {
-                                        _incrementPushups(buttonValue10);
-                                      },
-                                      child: Text('+$buttonValue10'),
-                                    ),
-                                  if (pushupCounter <
-                                      maxPushups - buttonValue15)
-                                    TextButton(
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            WidgetStateProperty.all<Color>(
-                                                const Color.fromARGB(
-                                                    25, 0, 0, 0)),
+                                      TextButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStateProperty.all<Color>(
+                                                  const Color.fromARGB(
+                                                      25, 0, 0, 0)),
+                                        ),
+                                        onPressed: () {
+                                          _incrementPushups(buttonValue15);
+                                        },
+                                        child: Text('+$buttonValue15'),
                                       ),
-                                      onPressed: () {
-                                        _incrementPushups(buttonValue15);
-                                      },
-                                      child: Text('+$buttonValue15'),
-                                    ),
-                                  IconButton(
-                                    icon: const Icon(RoutineFont.check),
-                                    style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty.all<
-                                              Color>(
-                                          const Color.fromARGB(25, 0, 0, 0)),
-                                    ),
-                                    onPressed: () {
-                                      _incrementPushups(
-                                          maxPushups - pushupCounter);
-                                    },
+                                      if (pushupCounter < maxPushups)
+                                        IconButton(
+                                          icon: const Icon(RoutineFont.check),
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStateProperty.all<Color>(
+                                                    const Color.fromARGB(
+                                                        25, 0, 0, 0)),
+                                          ),
+                                          onPressed: () {
+                                            _incrementPushups(
+                                                maxPushups - pushupCounter);
+                                          },
+                                        ),
+                                    ],
                                   ),
                                 ],
                               ),
+                            ),
+                            if (pushupCounter < maxPushups)
+                              LinearProgressIndicator(
+                                value: pushupCounter / maxPushups,
+                                minHeight: 7.0,
+                                borderRadius: BorderRadius.circular(20.0),
+                              )
                           ],
                         ),
-                        if (pushupCounter != maxPushups)
-                          LinearProgressIndicator(
-                            value: pushupCounter / maxPushups,
-                            minHeight: 7.0,
-                            borderRadius: BorderRadius.circular(20.0),
-                          )
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            '$pullupCounter/$maxPullups Pullups',
-                            style: const TextStyle(
-                              fontSize: 16.0,
-                            ),
-                            softWrap: true,
-                          ),
-                        ),
-                        if (pullupCounter == maxPullups)
-                          const Icon(
-                            RoutineFont.check,
-                            color: Colors.green,
-                          )
-                        else
-                          ButtonBar(
-                            children: [
-                              if (pullupCounter < maxPullups - buttonValue5)
-                                TextButton(
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        WidgetStateProperty.all<Color>(
-                                            const Color.fromARGB(25, 0, 0, 0)),
-                                  ),
-                                  onPressed: () {
-                                    _incrementPullups(buttonValue5);
-                                  },
-                                  child: Text('+$buttonValue5'),
-                                ),
-                              if (pullupCounter < maxPullups - buttonValue10)
-                                TextButton(
-                                  style: ButtonStyle(
-                                    backgroundColor:
-                                        WidgetStateProperty.all<Color>(
-                                            const Color.fromARGB(25, 0, 0, 0)),
-                                  ),
-                                  onPressed: () {
-                                    _incrementPullups(buttonValue10);
-                                  },
-                                  child: Text('+$buttonValue10'),
-                                ),
-                              IconButton(
-                                icon: const Icon(RoutineFont.check),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStateProperty.all<Color>(
-                                          const Color.fromARGB(25, 0, 0, 0)),
-                                ),
-                                onPressed: () {
-                                  _incrementPullups(maxPullups - pullupCounter);
-                                },
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                    if (pushupCounter != maxPushups)
-                      LinearProgressIndicator(
-                        value: pullupCounter / maxPullups,
-                        minHeight: 7.0,
-                        borderRadius: BorderRadius.circular(20.0),
-                      )
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    );
+    ]);
   }
 }
