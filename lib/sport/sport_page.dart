@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/sport/add_sheet.dart';
 import 'package:routine/widgets/daily_card_widget.dart';
 import 'package:routine/widgets/goal_card_widget.dart';
 
@@ -38,7 +38,7 @@ class _SportPageState extends State<SportPage> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
-                  const GoalCardWidget(title: 'Active Goal'),
+                  GoalCardWidget(title: 'Active Goal'),
                   StreamBuilder(
                       stream: widget.service.exerciseStream(),
                       builder: (context, snapshot) =>
@@ -49,14 +49,7 @@ class _SportPageState extends State<SportPage> {
           ),
         ],
       ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        tooltip: 'Increment',
-        child: const Icon(RoutineIconPack.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: AddSheet(service: widget.service),
     );
   }
 }

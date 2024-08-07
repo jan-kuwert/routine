@@ -3,8 +3,9 @@ import 'package:routine/routine_icon_pack_icons.dart';
 
 class GoalCardWidget extends StatefulWidget {
   final String title;
+  late bool pinned;
 
-  const GoalCardWidget({super.key, required this.title});
+  GoalCardWidget({super.key, required this.title, this.pinned = false});
 
   @override
   State<GoalCardWidget> createState() => _GoalCardWidgetState();
@@ -23,9 +24,13 @@ class _GoalCardWidgetState extends State<GoalCardWidget> {
           children: [
             Text(widget.title, style: const TextStyle(fontSize: 18.0)),
             IconButton(
-              icon: const Icon(Icons.add),
+              icon: Icon(
+                widget.pinned ? RoutineIconPack.keep_off : RoutineIconPack.keep,
+              ),
               onPressed: () {
-                // Add your onPressed code here!
+                setState(() {
+                  widget.pinned = !(widget.pinned);
+                });
               },
             ),
           ],
@@ -54,7 +59,7 @@ class _GoalCardWidgetState extends State<GoalCardWidget> {
                       Padding(
                         padding: EdgeInsets.only(right: 4.0),
                         child: Icon(
-                          RoutineIconPack.flag,
+                          RoutineIconPack.emoji_events,
                           size: 24.0,
                         ),
                       ),
