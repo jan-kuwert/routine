@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:routine/routine_font_icons.dart';
+import 'package:routine/routine_icon_pack_icons.dart';
 
 class GoalCardWidget extends StatefulWidget {
   final String title;
@@ -54,7 +54,7 @@ class _GoalCardWidgetState extends State<GoalCardWidget> {
                       Padding(
                         padding: EdgeInsets.only(right: 4.0),
                         child: Icon(
-                          RoutineFont.flag,
+                          RoutineIconPack.flag,
                           size: 24.0,
                         ),
                       ),
@@ -95,7 +95,7 @@ class _GoalCardWidgetState extends State<GoalCardWidget> {
                 ),
                 const Row(
                   children: [
-                    Icon(RoutineFont.group_35,
+                    Icon(RoutineIconPack.local_fire_department,
                         size: 28.0, color: Color(0xFFFF8F0F)),
                     Text('10 Days Streak!'),
                   ],

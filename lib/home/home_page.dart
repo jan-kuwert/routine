@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:routine/db/isar_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final IsarService service;
+
+  const HomePage({super.key, required this.service});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

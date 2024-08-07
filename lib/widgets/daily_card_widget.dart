@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:routine/routine_font_icons.dart';
+import 'package:routine/routine_icon_pack_icons.dart';
 
 class DailyCardWidget extends StatefulWidget {
   final String title;
@@ -78,7 +78,7 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Icon(
-                      RoutineFont.done_all,
+                      RoutineIconPack.done_all,
                       color: Colors.green,
                     ),
                   ),
@@ -146,7 +146,6 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
                                                 }
                                                 return null;
                                               },
-                                             
                                               inputFormatters: [
                                                 FilteringTextInputFormatter
                                                     .digitsOnly,
@@ -168,7 +167,7 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
                                         if (pushupCounter == maxPushups)
                                           const Padding(
                                             padding: EdgeInsets.only(left: 8.0),
-                                            child: Icon(RoutineFont.check,
+                                            child: Icon(RoutineIconPack.check,
                                                 color: Colors.green),
                                           ),
                                       ],
@@ -202,7 +201,8 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
                                       ),
                                       if (pushupCounter < maxPushups)
                                         IconButton(
-                                          icon: const Icon(RoutineFont.check),
+                                          icon:
+                                              const Icon(RoutineIconPack.check),
                                           style: ButtonStyle(
                                             backgroundColor:
                                                 WidgetStateProperty.all<Color>(

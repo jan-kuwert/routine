@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_page.dart';
-import 'package:routine/routine_font_icons.dart';
+import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/sport_page.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Routine',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Home Page'),
+      home: const MyHomePage(title: 'Home'),
     );
   }
 }
@@ -58,6 +59,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final service = IsarService();
   int currentPageIndex = 0;
 
   @override
@@ -81,14 +83,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
       body: <Widget>[
         /// Home page
-        const HomePage(),
-        const SportPage(),
+        HomePage(service: service),
+        SportPage(service: service),
         const Card(
           shadowColor: Colors.transparent,
           margin: EdgeInsets.all(8.0),
           child: SizedBox.expand(
             child: Center(
               child: Text('Todo page'),
+            ),
+          ),
+        ),
+        const Card(
+          shadowColor: Colors.transparent,
+          margin: EdgeInsets.all(8.0),
+          child: SizedBox.expand(
+            child: Center(
+              child: Text('Birthdays page'),
             ),
           ),
         ),
@@ -114,23 +125,33 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(RoutineFont.home),
-            selectedIcon: Icon(RoutineFont.home, color: Colors.white),
+            icon: Icon(RoutineIconPack.add),
+            selectedIcon:
+                Icon(RoutineIconPack.home_filled, color: Colors.white),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(RoutineFont.exercise),
-            selectedIcon: Icon(RoutineFont.exercise, color: Colors.white),
+            icon: Icon(RoutineIconPack.exercise),
+            selectedIcon:
+                Icon(RoutineIconPack.exercise_filled, color: Colors.white),
             label: 'Sport',
           ),
           NavigationDestination(
-            icon: Icon(RoutineFont.done_outline),
-            selectedIcon: Icon(RoutineFont.done_outline, color: Colors.white),
+            icon: Icon(RoutineIconPack.done_outline),
+            selectedIcon:
+                Icon(RoutineIconPack.done_outline_filled, color: Colors.white),
             label: 'Todo',
           ),
           NavigationDestination(
-            icon: Icon(RoutineFont.experiment),
-            selectedIcon: Icon(RoutineFont.experiment, color: Colors.white),
+            icon: Icon(RoutineIconPack.cake),
+            selectedIcon:
+                Icon(RoutineIconPack.cake_filled, color: Colors.white),
+            label: 'Birthdays',
+          ),
+          NavigationDestination(
+            icon: Icon(RoutineIconPack.experiment),
+            selectedIcon:
+                Icon(RoutineIconPack.experiment_filled, color: Colors.white),
             label: 'Lab',
           ),
         ],

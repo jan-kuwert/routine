@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:routine/routine_font_icons.dart';
+import 'package:routine/db/isar_service.dart';
+import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/widgets/daily_card_widget.dart';
 import 'package:routine/widgets/goal_card_widget.dart';
 
 class SportPage extends StatefulWidget {
-  const SportPage({super.key});
+  final IsarService service;
+
+  const SportPage({super.key, required this.service});
 
   @override
   State<SportPage> createState() => _SportPageState();
@@ -30,13 +33,16 @@ class _SportPageState extends State<SportPage> {
               ),
             ],
           ),
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
-                  GoalCardWidget(title: 'Active Goal'),
-                  DailyCardWidget(title: 'Today')
+                  const GoalCardWidget(title: 'Active Goal'),
+                  StreamBuilder(
+                      stream: widget.service.exerciseStream(),
+                      builder: (context, snapshot) =>
+                          const DailyCardWidget(title: 'Today')),
                 ],
               ),
             ),
@@ -49,7 +55,7 @@ class _SportPageState extends State<SportPage> {
           // Add your onPressed code here!
         },
         tooltip: 'Increment',
-        child: const Icon(RoutineFont.add),
+        child: const Icon(RoutineIconPack.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
