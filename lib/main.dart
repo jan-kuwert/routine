@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(RoutineIconPack.add),
+            icon: Icon(RoutineIconPack.home),
             selectedIcon:
                 Icon(RoutineIconPack.home_filled, color: Colors.white),
             label: 'Home',

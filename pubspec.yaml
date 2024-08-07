@@ -62,7 +62,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   fonts:
-    - family: RoutoineIconPack
+    - family: RoutineIconPack
       fonts:
         - asset: fonts/RoutineIconPack.ttf
 
