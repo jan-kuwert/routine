@@ -32,6 +32,8 @@ class _AddSheetState extends State<AddSheet> {
     'Plank',
   ];
 
+  late bool _fabMenu = false;
+
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -177,12 +179,90 @@ class _AddSheetState extends State<AddSheet> {
     );
   }
 
+  // void _showFloatingActionButtons(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Scaffold(
+  //         floatingActionButton: Column(
+  //           children: [
+  //             Column(
+  //               children: [
+  //                 FloatingActionButton(
+  //                   onPressed: () => _showBottomSheet(context),
+  //                   tooltip: 'Increment',
+  //                   child: const Icon(RoutineIconPack.add),
+  //                 ),
+  //                 const SizedBox(width: 8),
+  //                 const Text('Main Action'),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 16),
+  //             Row(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 FloatingActionButton(
+  //                   mini: true,
+  //                   onPressed: () => _showBottomSheet(context),
+  //                   tooltip: 'Increment',
+  //                   child: const Icon(RoutineIconPack.add),
+  //                 ),
+  //                 const SizedBox(width: 8),
+  //                 const Text('Secondary Action'),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  Widget _showFloatingActionButtons(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showBottomSheet(context),
+        tooltip: 'Increment',
+        child: const Icon(RoutineIconPack.home),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showBottomSheet(context),
+      onPressed: () => _fabMenu = true,
       tooltip: 'Increment',
       child: const Icon(RoutineIconPack.add),
     );
+    if (_fabMenu) {
+      Stack(
+        children: [
+          // Your main content goes here
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton(
+                  mini: true,
+                  onPressed: () => _showBottomSheet(context),
+                  tooltip: 'Secondary Action',
+                  child: const Icon(RoutineIconPack.add),
+                ),
+                const SizedBox(height: 16),
+                FloatingActionButton(
+                  onPressed: () => _showBottomSheet(context),
+                  tooltip: 'Main Action',
+                  child: const Icon(RoutineIconPack.home),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

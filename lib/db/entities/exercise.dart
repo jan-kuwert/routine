@@ -9,11 +9,21 @@ enum ExerciseType {
   time,
 }
 
+enum ExerciseCategory {
+  upperBody,
+  lowerBody,
+  core,
+  fullBody,
+}
+
 @Collection()
 class Exercise {
   Id id = Isar.autoIncrement;
 
   late String name;
+
+  @enumerated
+  late ExerciseCategory category;
 
   @enumerated
   late ExerciseType type;
