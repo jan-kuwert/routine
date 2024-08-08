@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/sport/date_input.dart';
 import 'package:routine/sport/select_dialog.dart';
 
 class AddSheet extends StatefulWidget {
@@ -16,9 +17,9 @@ class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  String _selectedType = 'Workout';
-  String? _selectedExerciseType;
-  late final List<String> _selectedExercises = [];
+  final DateTime _selectedDate = DateTime.now();
+  late String _selectedType = 'Workout';
+  final List<String> _selectedExercises = [];
   final List<String> _exercises = [
     'Push-ups',
     'Sit-ups',
@@ -73,65 +74,52 @@ class _AddSheetState extends State<AddSheet> {
                       if (_selectedType == 'Workout')
                         Column(
                           children: [
-                            TextField(
-                              controller: _dateController,
-                              decoration: const InputDecoration(
-                                labelText: 'Date',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 30, right: 30),
-                              child: DatePickerDialog(
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime(2130)
-                                    .add(const Duration(days: 30)),
-                                initialDate: DateTime.now(),
-                              ),
-                            ),
+                            DateInputWidget(selectedDate: _selectedDate),
                             const SizedBox(height: 16),
-                            Column(
-                              children: _selectedExercises
-                                  .map(
-                                    (exercise) => ListTile(
-                                      title: Text(exercise),
-                                      trailing: IconButton(
-                                        icon:
-                                            const Icon(RoutineIconPack.delete),
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedExercises.remove(exercise);
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                            const SizedBox(height: 16),
-                            SelectDialog(
-                              list: _exercises,
-                              selectedList: _selectedExercises,
-                              title: 'Add Exercise(s)',
-                            ),
                           ],
                         ),
                       if (_selectedType == 'Goal')
-                        TextField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Goal Name',
-                            border: OutlineInputBorder(),
-                          ),
+                        Column(
+                          children: [
+                            TextField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Goal Name',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _descriptionController,
+                              decoration: const InputDecoration(
+                                labelText: 'Description',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ],
                         ),
+                      Column(
+                        children: _selectedExercises
+                            .map(
+                              (exercise) => ListTile(
+                                title: Text(exercise),
+                                trailing: IconButton(
+                                  icon: const Icon(RoutineIconPack.delete),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedExercises.remove(exercise);
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          border: OutlineInputBorder(),
-                        ),
+                      SelectDialog(
+                        list: _exercises,
+                        selectedList: _selectedExercises,
+                        title: 'Add Exercise(s)',
                       ),
                     ],
                   ),
