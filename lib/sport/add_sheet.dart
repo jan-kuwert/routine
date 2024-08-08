@@ -31,6 +31,8 @@ class _AddSheetState extends State<AddSheet> {
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      showDragHandle: true,
+      sheetAnimationStyle: AnimationStyle(curve: const ElasticInCurve()),
       isScrollControlled: true,
       builder: (BuildContext context) {
         return StatefulBuilder(
