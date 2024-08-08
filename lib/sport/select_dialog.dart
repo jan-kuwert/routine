@@ -74,14 +74,10 @@ class _SelectDialogState extends State<SelectDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
+    return OutlinedButton.icon(
       onPressed: () => _showExerciseSelectionDialog(context),
-      label: const Text('Add Exercis(s)'),
+      label: const Text('Select Exercis(s)'),
       icon: const Icon(RoutineIconPack.add),
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black,
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      ),
     );
   }
 }

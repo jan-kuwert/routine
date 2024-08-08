@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class DateInputWidget extends StatefulWidget {
   final DateTime selectedDate;
+  final String dateLabel;
 
-  const DateInputWidget({super.key, required this.selectedDate});
+  const DateInputWidget(
+      {super.key, required this.selectedDate, required this.dateLabel});
 
   @override
   State<DateInputWidget> createState() => _DateInputWidgetState();
@@ -16,7 +18,6 @@ class _DateInputWidgetState extends State<DateInputWidget> {
   @override
   void initState() {
     super.initState();
-    widget.selectedDate;
     _dateFocusNode.addListener(() {
       if (_dateFocusNode.hasFocus) {
         _selectDate();
@@ -40,9 +41,7 @@ class _DateInputWidgetState extends State<DateInputWidget> {
     );
     if (picked != null) {
       setState(() {
-        // setState(() {
-        //   widget.selectedDate = picked;
-        // });
+        // widget.selectedDate = picked;
         _dateController.text = "${picked.toLocal()}".split(' ')[0];
       });
     }
@@ -55,10 +54,11 @@ class _DateInputWidgetState extends State<DateInputWidget> {
       children: [
         TextField(
           controller: _dateController,
+          readOnly: true,
           focusNode: _dateFocusNode,
-          decoration: const InputDecoration(
-            labelText: 'Date',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: widget.dateLabel,
+            border: InputBorder.none,
           ),
         ),
         // Other widgets...

@@ -17,7 +17,11 @@ class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final DateTime _selectedDate = DateTime.now();
+
+  final DateTime _workoutDate = DateTime.now();
+  final DateTime _goalStartDate = DateTime.now();
+  final DateTime _goalEndDate = DateTime.now();
+
   late String _selectedType = 'Workout';
   final List<String> _selectedExercises = [];
   final List<String> _exercises = [
@@ -40,12 +44,13 @@ class _AddSheetState extends State<AddSheet> {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16.0,
+                right: 16.0,
               ),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
                         'Add a ${_selectedType.toLowerCase()}',
@@ -76,8 +81,8 @@ class _AddSheetState extends State<AddSheet> {
                       if (_selectedType == 'Workout')
                         Column(
                           children: [
-                            DateInputWidget(selectedDate: _selectedDate),
-                            const SizedBox(height: 16),
+                            DateInputWidget(
+                                selectedDate: _workoutDate, dateLabel: 'Date'),
                           ],
                         ),
                       if (_selectedType == 'Goal')
@@ -85,43 +90,81 @@ class _AddSheetState extends State<AddSheet> {
                           children: [
                             TextField(
                               controller: _nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Goal Name',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextField(
-                              controller: _descriptionController,
-                              decoration: const InputDecoration(
-                                labelText: 'Description',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      Column(
-                        children: _selectedExercises
-                            .map(
-                              (exercise) => ListTile(
-                                title: Text(exercise),
-                                trailing: IconButton(
-                                  icon: const Icon(RoutineIconPack.delete),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedExercises.remove(exercise);
-                                    });
-                                  },
+                              decoration: InputDecoration(
+                                labelText: 'Goal Title',
+                                border: InputBorder.none,
+                                floatingLabelStyle: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
-                            )
-                            .toList(),
+                            ),
+                            const Divider(),
+                            DateInputWidget(
+                                selectedDate: _goalStartDate,
+                                dateLabel: 'Start Date'),
+                            const SizedBox(height: 16),
+                            DateInputWidget(
+                                selectedDate: _goalEndDate,
+                                dateLabel: 'End Date'),
+                          ],
+                        ),
+                      const Divider(),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: _exercises
+                              .map(
+                                (exercise) => Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: FilterChip(
+                                    label: Text(exercise),
+                                    selected:
+                                        _selectedExercises.contains(exercise),
+                                    onSelected: (bool selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          _selectedExercises.add(exercise);
+                                        } else {
+                                          _selectedExercises.remove(exercise);
+                                        }
+                                      });
+                                    },
+                                    selectedColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerLow,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SelectDialog(
                         list: _exercises,
                         selectedList: _selectedExercises,
-                        title: 'Add Exercise(s)',
+                        title: 'Select Exercise(s)',
+                      ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: ButtonStyle(
+                            textStyle: WidgetStateProperty.all<TextStyle>(
+                              const TextStyle(
+                                  fontSize: 16.0), // Increased font size
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Save'),
+                        ),
                       ),
                     ],
                   ),
