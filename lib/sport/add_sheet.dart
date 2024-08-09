@@ -7,8 +7,9 @@ import 'package:routine/sport/select_dialog.dart';
 
 class AddSheet extends StatefulWidget {
   final IsarService service;
+  final GlobalKey<ExpandableFabState> fabKey;
 
-  const AddSheet({super.key, required this.service});
+  const AddSheet({super.key, required this.service, required this.fabKey});
 
   @override
   State<AddSheet> createState() => _AddSheetState();
@@ -32,8 +33,6 @@ class _AddSheetState extends State<AddSheet> {
     'Lunges',
     'Plank',
   ];
-
-  late final bool _fabMenu = false;
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -180,25 +179,18 @@ class _AddSheetState extends State<AddSheet> {
     );
   }
 
-  Widget _showFloatingActionButtons(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showBottomSheet(context),
-        tooltip: 'Increment',
-        child: const Icon(RoutineIconPack.home),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ExpandableFab(
+      key: widget.fabKey,
       type: ExpandableFabType.up,
+      overlayStyle: ExpandableFabOverlayStyle(
+        color:
+            Theme.of(context).colorScheme.surfaceContainerHigh.withOpacity(0.9),
+      ),
       openButtonBuilder: RotateFloatingActionButtonBuilder(
         child: const Icon(RoutineIconPack.add),
         fabSize: ExpandableFabSize.regular,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       ),
       closeButtonBuilder: FloatingActionButtonBuilder(
         size: 56,
@@ -207,16 +199,22 @@ class _AddSheetState extends State<AddSheet> {
           return const Text('');
         },
       ),
-      childrenOffset: const Offset(0, -80),
+      childrenOffset: const Offset(0, -70),
       childrenAnimation: ExpandableFabAnimation.none,
       distance: 70,
       children: [
         Row(
           children: [
-            const Text('Exercise'),
+            const Text('Workout'),
             const SizedBox(width: 10),
             FloatingActionButton(
-              onPressed: () => _showBottomSheet(context),
+              onPressed: () => {
+                _showBottomSheet(context),
+                setState(() {
+                  _selectedType = 'Workout';
+                }),
+                widget.fabKey.currentState!.toggle()
+              },
               tooltip: 'Add Exercise',
               child: const Icon(RoutineIconPack.exercise),
             ),
@@ -229,7 +227,13 @@ class _AddSheetState extends State<AddSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: FloatingActionButton.small(
-                onPressed: () => _showBottomSheet(context),
+                onPressed: () => {
+                  _showBottomSheet(context),
+                  setState(() {
+                    _selectedType = 'Goal';
+                  }),
+                  widget.fabKey.currentState!.toggle()
+                },
                 tooltip: 'Add Goal',
                 backgroundColor:
                     Theme.of(context).colorScheme.surfaceContainerHigh,
