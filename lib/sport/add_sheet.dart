@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
@@ -32,7 +33,7 @@ class _AddSheetState extends State<AddSheet> {
     'Plank',
   ];
 
-  late bool _fabMenu = false;
+  late final bool _fabMenu = false;
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -179,45 +180,6 @@ class _AddSheetState extends State<AddSheet> {
     );
   }
 
-  // void _showFloatingActionButtons(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Scaffold(
-  //         floatingActionButton: Column(
-  //           children: [
-  //             Column(
-  //               children: [
-  //                 FloatingActionButton(
-  //                   onPressed: () => _showBottomSheet(context),
-  //                   tooltip: 'Increment',
-  //                   child: const Icon(RoutineIconPack.add),
-  //                 ),
-  //                 const SizedBox(width: 8),
-  //                 const Text('Main Action'),
-  //               ],
-  //             ),
-  //             const SizedBox(height: 16),
-  //             Row(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 FloatingActionButton(
-  //                   mini: true,
-  //                   onPressed: () => _showBottomSheet(context),
-  //                   tooltip: 'Increment',
-  //                   child: const Icon(RoutineIconPack.add),
-  //                 ),
-  //                 const SizedBox(width: 8),
-  //                 const Text('Secondary Action'),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget _showFloatingActionButtons(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -231,38 +193,52 @@ class _AddSheetState extends State<AddSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _fabMenu = true,
-      tooltip: 'Increment',
-      child: const Icon(RoutineIconPack.add),
-    );
-    if (_fabMenu) {
-      Stack(
-        children: [
-          // Your main content goes here
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  mini: true,
-                  onPressed: () => _showBottomSheet(context),
-                  tooltip: 'Secondary Action',
-                  child: const Icon(RoutineIconPack.add),
-                ),
-                const SizedBox(height: 16),
-                FloatingActionButton(
-                  onPressed: () => _showBottomSheet(context),
-                  tooltip: 'Main Action',
-                  child: const Icon(RoutineIconPack.home),
-                ),
-              ],
+    return ExpandableFab(
+      type: ExpandableFabType.up,
+      openButtonBuilder: RotateFloatingActionButtonBuilder(
+        child: const Icon(RoutineIconPack.add),
+        fabSize: ExpandableFabSize.regular,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      ),
+      closeButtonBuilder: FloatingActionButtonBuilder(
+        size: 56,
+        builder: (BuildContext context, void Function()? onPressed,
+            Animation<double> progress) {
+          return const Text('');
+        },
+      ),
+      childrenOffset: const Offset(0, -80),
+      childrenAnimation: ExpandableFabAnimation.none,
+      distance: 70,
+      children: [
+        Row(
+          children: [
+            const Text('Exercise'),
+            const SizedBox(width: 10),
+            FloatingActionButton(
+              onPressed: () => _showBottomSheet(context),
+              tooltip: 'Add Exercise',
+              child: const Icon(RoutineIconPack.exercise),
             ),
-          ),
-        ],
-      );
-    }
+          ],
+        ),
+        Row(
+          children: [
+            const Text('Goal'),
+            const SizedBox(width: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: FloatingActionButton.small(
+                onPressed: () => _showBottomSheet(context),
+                tooltip: 'Add Goal',
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHigh,
+                child: const Icon(RoutineIconPack.emoji_events),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

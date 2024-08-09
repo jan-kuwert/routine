@@ -173,7 +173,7 @@ class _DailyCardWidgetState extends State<DailyCardWidget> {
                                       ],
                                     ),
                                   ),
-                                  ButtonBar(
+                                  OverflowBar(
                                     children: [
                                       TextButton(
                                         style: ButtonStyle(

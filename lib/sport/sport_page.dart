@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/sport/add_sheet.dart';
 import 'package:routine/widgets/daily_card_widget.dart';
@@ -49,6 +50,7 @@ class _SportPageState extends State<SportPage> {
           ),
         ],
       ),
+      floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: AddSheet(service: widget.service),
     );
   }
