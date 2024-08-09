@@ -9,12 +9,7 @@ enum ExerciseType {
   time,
 }
 
-enum ExerciseCategory {
-  upperBody,
-  lowerBody,
-  core,
-  fullBody,
-}
+enum ExerciseCategory { upperBody, lowerBody, core, fullBody, other }
 
 @Collection()
 class Exercise {

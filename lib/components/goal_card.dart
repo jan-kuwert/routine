@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 
-class GoalCardWidget extends StatefulWidget {
+class GoalCard extends StatefulWidget {
   final String title;
   late bool pinned;
 
-  GoalCardWidget({super.key, required this.title, this.pinned = false});
+  GoalCard({super.key, required this.title, this.pinned = false});
 
   @override
-  State<GoalCardWidget> createState() => _GoalCardWidgetState();
+  State<GoalCard> createState() => _GoalCardState();
 }
 
-class _GoalCardWidgetState extends State<GoalCardWidget> {
+class _GoalCardState extends State<GoalCard> {
   final double progress = 0.33;
 
   @override

@@ -31,6 +31,16 @@ class IsarService {
     return isar.dailyWorkouts.where().filter().dateEqualTo(date).findFirst();
   }
 
+  Future<List<Goal>> getAllGoals() async {
+    final isar = await db;
+    return isar.goals.where().findAll();
+  }
+
+  Future<List<Exercise>> getAllExercises() async {
+    final isar = await db;
+    return isar.exercises.where().findAll();
+  }
+
   Future<List<DailyWorkout>> getAllDailyWorkouts() async {
     final isar = await db;
     return isar.dailyWorkouts.where().findAll();

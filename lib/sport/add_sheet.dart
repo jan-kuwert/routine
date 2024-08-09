@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
@@ -17,8 +18,6 @@ class AddSheet extends StatefulWidget {
 
 class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
 
   final DateTime _workoutDate = DateTime.now();
   final DateTime _goalStartDate = DateTime.now();
@@ -26,13 +25,6 @@ class _AddSheetState extends State<AddSheet> {
 
   late String _selectedType = 'Workout';
   final List<String> _selectedExercises = [];
-  final List<String> _exercises = [
-    'Push-ups',
-    'Sit-ups',
-    'Squats',
-    'Lunges',
-    'Plank',
-  ];
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -59,27 +51,6 @@ class _AddSheetState extends State<AddSheet> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 30),
-                      SegmentedButton<String>(
-                        segments: const <ButtonSegment<String>>[
-                          ButtonSegment<String>(
-                            value: 'Workout',
-                            label: Text('Workout'),
-                            icon: Icon(RoutineIconPack.exercise),
-                          ),
-                          ButtonSegment<String>(
-                            value: 'Goal',
-                            label: Text('Goal'),
-                            icon: Icon(RoutineIconPack.emoji_events),
-                          ),
-                        ],
-                        selected: <String>{_selectedType},
-                        onSelectionChanged: (Set<String> newSelection) {
-                          setState(() {
-                            _selectedType = newSelection.first;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 40),
                       if (_selectedType == 'Workout')
                         Column(
                           children: [
@@ -115,43 +86,72 @@ class _AddSheetState extends State<AddSheet> {
                       const SizedBox(
                         height: 8.0,
                       ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: _exercises
-                              .map(
-                                (exercise) => Padding(
-                                  padding: const EdgeInsets.only(right: 10.0),
-                                  child: FilterChip(
-                                    label: Text(exercise),
-                                    selected:
-                                        _selectedExercises.contains(exercise),
-                                    onSelected: (bool selected) {
-                                      setState(() {
-                                        if (selected) {
-                                          _selectedExercises.add(exercise);
-                                        } else {
-                                          _selectedExercises.remove(exercise);
-                                        }
-                                      });
-                                    },
-                                    selectedColor:
-                                        Theme.of(context).colorScheme.primary,
-                                    backgroundColor: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerLow,
-                                  ),
+                      FutureBuilder<List<Exercise>>(
+                        future: widget.service.getAllExercises(),
+                        builder:
+                            (context, AsyncSnapshot<List<Exercise>> snapshot) {
+                          if (snapshot.hasData) {
+                            return ShaderMask(
+                              shaderCallback: (Rect bounds) {
+                                return const LinearGradient(
+                                  stops: [0.0, 0.8, 1.0],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: <Color>[
+                                    Colors.black,
+                                    Colors.black,
+                                    Colors.transparent
+                                  ],
+                                ).createShader(bounds);
+                              },
+                              blendMode: BlendMode.dstIn,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    ...snapshot.data!.take(5).map(
+                                          (exercise) => Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 10.0),
+                                            child: FilterChip(
+                                              label: Text(exercise.name),
+                                              selected: _selectedExercises
+                                                  .contains(exercise.name),
+                                              onSelected: (bool selected) {
+                                                setState(() {
+                                                  if (selected) {
+                                                    _selectedExercises
+                                                        .add(exercise.name);
+                                                  } else {
+                                                    _selectedExercises
+                                                        .remove(exercise.name);
+                                                  }
+                                                });
+                                              },
+                                              selectedColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerLow,
+                                            ),
+                                          ),
+                                        ),
+                                    SelectDialog(
+                                      list: snapshot.data!,
+                                      selectedList: _selectedExercises,
+                                      title: 'Select Exercise(s)',
+                                    ),
+                                  ],
                                 ),
-                              )
-                              .toList(),
-                        ),
+                              ),
+                            );
+                          }
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        },
                       ),
                       const SizedBox(height: 16),
-                      SelectDialog(
-                        list: _exercises,
-                        selectedList: _selectedExercises,
-                        title: 'Select Exercise(s)',
-                      ),
                       const SizedBox(height: 40),
                       SizedBox(
                         width: double.infinity,

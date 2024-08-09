@@ -17,13 +17,19 @@ const ExerciseSchema = CollectionSchema(
   name: r'Exercise',
   id: 2972066467915231902,
   properties: {
-    r'name': PropertySchema(
+    r'category': PropertySchema(
       id: 0,
+      name: r'category',
+      type: IsarType.byte,
+      enumMap: _ExercisecategoryEnumValueMap,
+    ),
+    r'name': PropertySchema(
+      id: 1,
       name: r'name',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'type',
       type: IsarType.byte,
       enumMap: _ExercisetypeEnumValueMap,
@@ -67,8 +73,9 @@ void _exerciseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.name);
-  writer.writeByte(offsets[1], object.type.index);
+  writer.writeByte(offsets[0], object.category.index);
+  writer.writeString(offsets[1], object.name);
+  writer.writeByte(offsets[2], object.type.index);
 }
 
 Exercise _exerciseDeserialize(
@@ -78,9 +85,12 @@ Exercise _exerciseDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Exercise();
+  object.category =
+      _ExercisecategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
+          ExerciseCategory.upperBody;
   object.id = id;
-  object.name = reader.readString(offsets[0]);
-  object.type = _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[1])] ??
+  object.name = reader.readString(offsets[1]);
+  object.type = _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[2])] ??
       ExerciseType.count;
   return object;
 }
@@ -93,8 +103,11 @@ P _exerciseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (_ExercisecategoryValueEnumMap[reader.readByteOrNull(offset)] ??
+          ExerciseCategory.upperBody) as P;
     case 1:
+      return (reader.readString(offset)) as P;
+    case 2:
       return (_ExercisetypeValueEnumMap[reader.readByteOrNull(offset)] ??
           ExerciseType.count) as P;
     default:
@@ -102,6 +115,20 @@ P _exerciseDeserializeProp<P>(
   }
 }
 
+const _ExercisecategoryEnumValueMap = {
+  'upperBody': 0,
+  'lowerBody': 1,
+  'core': 2,
+  'fullBody': 3,
+  'other': 4,
+};
+const _ExercisecategoryValueEnumMap = {
+  0: ExerciseCategory.upperBody,
+  1: ExerciseCategory.lowerBody,
+  2: ExerciseCategory.core,
+  3: ExerciseCategory.fullBody,
+  4: ExerciseCategory.other,
+};
 const _ExercisetypeEnumValueMap = {
   'count': 0,
   'time': 1,
@@ -202,6 +229,59 @@ extension ExerciseQueryWhere on QueryBuilder<Exercise, Exercise, QWhereClause> {
 
 extension ExerciseQueryFilter
     on QueryBuilder<Exercise, Exercise, QFilterCondition> {
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> categoryEqualTo(
+      ExerciseCategory value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> categoryGreaterThan(
+    ExerciseCategory value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> categoryLessThan(
+    ExerciseCategory value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'category',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> categoryBetween(
+    ExerciseCategory lower,
+    ExerciseCategory upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'category',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -506,6 +586,18 @@ extension ExerciseQueryLinks
 }
 
 extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -533,6 +625,18 @@ extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
 
 extension ExerciseQuerySortThenBy
     on QueryBuilder<Exercise, Exercise, QSortThenBy> {
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -572,6 +676,12 @@ extension ExerciseQuerySortThenBy
 
 extension ExerciseQueryWhereDistinct
     on QueryBuilder<Exercise, Exercise, QDistinct> {
+  QueryBuilder<Exercise, Exercise, QDistinct> distinctByCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'category');
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -591,6 +701,13 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Exercise, ExerciseCategory, QQueryOperations>
+      categoryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'category');
     });
   }
 

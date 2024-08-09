@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:routine/components/daily_card.dart';
+import 'package:routine/components/goal_card.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/add_sheet.dart';
-import 'package:routine/widgets/daily_card_widget.dart';
-import 'package:routine/widgets/goal_card_widget.dart';
 
 class SportPage extends StatefulWidget {
   final IsarService service;
@@ -45,11 +45,11 @@ class _SportPageState extends State<SportPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
-                    GoalCardWidget(title: 'Active Goal'),
+                    GoalCard(title: 'Active Goal'),
                     StreamBuilder(
                         stream: widget.service.exerciseStream(),
                         builder: (context, snapshot) =>
-                            const DailyCardWidget(title: 'Today')),
+                            const DailyCard(title: 'Today')),
                   ],
                 ),
               ),

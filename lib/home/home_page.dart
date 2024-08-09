@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/sport/create_exercise_dialog.dart';
 
 class HomePage extends StatefulWidget {
   final IsarService service;
@@ -33,6 +34,12 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: Text('Home Page'),
             ),
+          ),
+          SliverToBoxAdapter(
+            child: Center(
+                child: CreateExerciseDialog(
+              service: widget.service,
+            )),
           ),
         ],
       ),

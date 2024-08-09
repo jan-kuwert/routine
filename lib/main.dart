@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         indicatorColor: Theme.of(context).colorScheme.primary,
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(

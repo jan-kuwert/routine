@@ -1,0 +1,50 @@
+  [
+    {
+      "category": 0,
+      "id": 3791429,
+      "name": "Pushups",
+      "type": 0
+    },
+    {
+      "category": 0,
+      "id": 3791430,
+      "name": "Pullups",
+      "type": 0
+    },
+    {
+      "category": 1,
+      "id": 3791431,
+      "name": "Squats",
+      "type": 0
+    },
+    {
+      "category": 2,
+      "id": 3791432,
+      "name": "Plank",
+      "type": 1
+    },
+    {
+      "category": 2,
+      "id": 3791433,
+      "name": "Situps",
+      "type": 0
+    },
+    {
+      "category": 2,
+      "id": 3791434,
+      "name": "Leg Raises",
+      "type": 0
+    },
+    {
+      "category": 2,
+      "id": 3791435,
+      "name": "Russian Twists",
+      "type": 0
+    },
+    {
+      "category": 2,
+      "id": 3791429,
+      "name": "Mountain Climbers",
+      "type": 0
+    }
+  ]

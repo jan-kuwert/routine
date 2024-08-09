@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/db/entities/exercise.dart';
 
 class SelectDialog extends StatefulWidget {
-  final List<String> list;
+  final List<Exercise> list;
   final List<String> selectedList;
   final String title;
 
@@ -36,16 +36,16 @@ class _SelectDialogState extends State<SelectDialog> {
             builder: (BuildContext context, StateSetter setState) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
-                children: widget.list.asMap().entries.map((entry) {
+                children: widget.list.map((exercise) {
                   return CheckboxListTile(
-                    value: _checkboxValues[entry.key],
-                    title: Text(entry.value),
+                    value: false,
+                    title: Text(exercise.name),
                     onChanged: (value) => setState(() {
-                      _checkboxValues[entry.key] = value;
+                      _checkboxValues[0] = value;
                       if (value == true) {
-                        widget.selectedList.add(entry.value);
+                        widget.selectedList.add(exercise.name);
                       } else {
-                        widget.selectedList.remove(entry.value);
+                        widget.selectedList.remove(exercise.name);
                       }
                     }),
                   );
@@ -74,10 +74,15 @@ class _SelectDialogState extends State<SelectDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () => _showExerciseSelectionDialog(context),
-      label: const Text('Select Exercis(s)'),
-      icon: const Icon(RoutineIconPack.add),
+    return FilterChip(
+      label: const Text(
+        '...more',
+      ),
+      selected: false,
+      onSelected: (bool selected) {
+        _showExerciseSelectionDialog(context);
+      },
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
     );
   }
 }

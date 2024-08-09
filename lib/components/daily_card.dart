@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 
-class DailyCardWidget extends StatefulWidget {
+class DailyCard extends StatefulWidget {
   final String title;
 
-  const DailyCardWidget({
+  const DailyCard({
     super.key,
     required this.title,
   });
 
   @override
-  State<DailyCardWidget> createState() => _DailyCardWidgetState();
+  State<DailyCard> createState() => _DailyCardState();
 }
 
-class _DailyCardWidgetState extends State<DailyCardWidget> {
+class _DailyCardState extends State<DailyCard> {
   late TextEditingController _pullupController;
   late FocusNode _focusNode;
 
