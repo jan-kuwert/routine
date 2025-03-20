@@ -3,6 +3,8 @@ import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/create_exercise_dialog.dart';
 
+import '../settings/settings_view.dart';
+
 class HomePage extends StatefulWidget {
   final IsarService service;
 
@@ -25,7 +27,8 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(RoutineIconPack.settings),
                 onPressed: () {
                   // Navigate to the settings page using a named route.
-                  // Navigator.pushNamed(context, '/settings');
+                  Navigator.restorablePushNamed(
+                      context, SettingsView.routeName);
                 },
               ),
             ],

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/sport/exercise_row.dart';
 
 class DailyCard extends StatefulWidget {
   final String title;
@@ -15,44 +18,71 @@ class DailyCard extends StatefulWidget {
 }
 
 class _DailyCardState extends State<DailyCard> {
+  // Path must match exactly how it's declared in pubspec.yaml
+  final String jsonPath = 'assets/exercises.json';
+
   late TextEditingController _pullupController;
   late FocusNode _focusNode;
 
-  final int buttonValue5 = 5;
-  final int buttonValue10 = 10;
-  final int buttonValue15 = 15;
-
-  int pushupCounter = 0;
-  int maxPushups = 50;
-  int pullupCounter = 0;
-  int maxPullups = 25;
-
-  void _incrementPushups(int value) async {
-    setState(() {
-      if (pushupCounter <= maxPushups - value) {
-        pushupCounter += value;
-      } else {
-        pushupCounter = maxPushups;
-      }
-    });
-  }
-
-  void _incrementPullups(int value) async {
-    setState(() {
-      if (pullupCounter <= maxPullups - value) {
-        pullupCounter += value;
-      } else {
-        pullupCounter = maxPullups;
-      }
-    });
-  }
+  static const exerciseNames = ['pushups', 'pullups'];
+  late Map<String, dynamic> exercises = {};
 
   @override
   void initState() {
     super.initState();
     _pullupController = TextEditingController(text: pullupCounter.toString());
     _focusNode = FocusNode();
+    // We need to use Future.delayed because context isn't available immediately in initState
+    Future.microtask(() => loadExercises());
   }
+
+  Future<void> loadExercises() async {
+    try {
+      final String jsonString =
+          await rootBundle.loadString('assets/exercises.json');
+      final dynamic decoded = json.decode(jsonString);
+      for (var i = 0; i < decoded.length; i++) {
+        if (decoded[i] is Map && exerciseNames.contains(decoded[i]['name'])) {
+          final String type = decoded[i]['name'];
+          decoded[i].remove('name');
+          exercises[type] = decoded[i];
+        }
+      }
+      debugPrint('Loaded Exercises: $exercises');
+
+      setState(() {
+        exercises = exercises;
+      });
+    } catch (e) {
+      debugPrint('Error loading Exercises: $e');
+      exercises = {};
+    }
+  }
+
+  // Getter for progress calculation
+  double get totalProgress {
+    if (exerciseNames.isEmpty || exercises.isEmpty) return 0.0;
+
+    double sum = 0.0;
+    int validExercises = 0;
+
+    for (var type in exerciseNames) {
+      if (exercises.containsKey(type) &&
+          exercises[type] != null &&
+          exercises[type]['max'] != null &&
+          exercises[type]['count'] != null) {
+        sum += exercises[type]['count'] / exercises[type]['max'];
+        validExercises++;
+      }
+    }
+
+    return validExercises > 0 ? sum / validExercises : 0.0;
+  }
+
+  int pushupCounter = 0;
+  int maxPushups = 50;
+  int pullupCounter = 0;
+  int maxPullups = 25;
 
   @override
   void dispose() {
@@ -72,9 +102,10 @@ class _DailyCardState extends State<DailyCard> {
             Row(
               children: [
                 Text(widget.title, style: const TextStyle(fontSize: 18.0)),
-                if (((pushupCounter / maxPushups + pullupCounter / maxPullups) /
-                        2) ==
-                    1)
+                if (exerciseNames.isNotEmpty &&
+                    ((pushupCounter / maxPushups + pullupCounter / maxPullups) /
+                            2) ==
+                        1)
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Icon(
@@ -84,9 +115,10 @@ class _DailyCardState extends State<DailyCard> {
                   ),
               ],
             ),
-            Text(
-                '${(((pushupCounter / maxPushups + pullupCounter / maxPullups) / 2) * 100).round()}%',
-                style: const TextStyle(fontSize: 18.0)),
+            if (exerciseNames.isNotEmpty)
+              Text(
+                  '${(((pushupCounter / maxPushups + pullupCounter / maxPullups) / 2) * 100).round()}%',
+                  style: const TextStyle(fontSize: 18.0)),
           ],
         ),
       ),
@@ -100,137 +132,52 @@ class _DailyCardState extends State<DailyCard> {
           child: Stack(
             children: [
               Positioned.fill(
-                child: LinearProgressIndicator(
-                  value: (pushupCounter / maxPushups +
-                          pullupCounter / maxPullups) /
-                      2,
-                  minHeight: 1.0,
-                  color: const Color.fromARGB(10, 0, 0, 0),
-                  backgroundColor: Colors.transparent,
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
+                child: exerciseNames.isNotEmpty
+                    ? LinearProgressIndicator(
+                        value: (pushupCounter / maxPushups +
+                                pullupCounter / maxPullups) /
+                            2,
+                        minHeight: 1.0,
+                        color: const Color.fromARGB(10, 0, 0, 0),
+                        backgroundColor: Colors.transparent,
+                        borderRadius: BorderRadius.circular(20.0),
+                      )
+                    : Container(),
               ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                _focusNode.requestFocus();
-                              },
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                child: exerciseNames.isNotEmpty
+                    ? Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: Column(
+                                spacing: 10.0,
                                 children: [
-                                  Flexible(
-                                    child: Row(
-                                      children: [
-                                        Form(
-                                          child: IntrinsicWidth(
-                                            child: TextFormField(
-                                              focusNode: _focusNode,
-                                              decoration: const InputDecoration(
-                                                border: InputBorder.none,
-                                              ),
-                                              controller: _pullupController,
-                                              validator: (String? value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please enter some text';
-                                                }
-                                                return null;
-                                              },
-                                              inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                                LengthLimitingTextInputFormatter(
-                                                    2),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          '/$maxPushups Pushups',
-                                          style: const TextStyle(
-                                            fontSize: 16.0,
-                                          ),
-                                          softWrap: true,
-                                        ),
-                                        if (pushupCounter == maxPushups)
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 8.0),
-                                            child: Icon(RoutineIconPack.check,
-                                                color: Colors.green),
-                                          ),
-                                      ],
+                                  for (var exercise in exercises.entries)
+                                    ExerciseRow(
+                                      title: exercise.key[0].toUpperCase() +
+                                          exercise.key.substring(1),
+                                      max: exercise.value['max'] ?? 0,
+                                      button1Value:
+                                          (exercise.value['button1value'] ?? 0),
+                                      button2Value:
+                                          (exercise.value['button2value'] ?? 0),
                                     ),
-                                  ),
-                                  OverflowBar(
-                                    children: [
-                                      TextButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              WidgetStateProperty.all<Color>(
-                                                  const Color.fromARGB(
-                                                      25, 0, 0, 0)),
-                                        ),
-                                        onPressed: () {
-                                          _incrementPushups(buttonValue10);
-                                        },
-                                        child: Text('+$buttonValue10'),
-                                      ),
-                                      TextButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              WidgetStateProperty.all<Color>(
-                                                  const Color.fromARGB(
-                                                      25, 0, 0, 0)),
-                                        ),
-                                        onPressed: () {
-                                          _incrementPushups(buttonValue15);
-                                        },
-                                        child: Text('+$buttonValue15'),
-                                      ),
-                                      if (pushupCounter < maxPushups)
-                                        IconButton(
-                                          icon:
-                                              const Icon(RoutineIconPack.check),
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                WidgetStateProperty.all<Color>(
-                                                    const Color.fromARGB(
-                                                        25, 0, 0, 0)),
-                                          ),
-                                          onPressed: () {
-                                            _incrementPushups(
-                                                maxPushups - pushupCounter);
-                                          },
-                                        ),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),
-                            if (pushupCounter < maxPushups)
-                              LinearProgressIndicator(
-                                value: pushupCounter / maxPushups,
-                                minHeight: 7.0,
-                                borderRadius: BorderRadius.circular(20.0),
-                              )
-                          ],
+                          ),
+                        ],
+                      )
+                    : const Center(
+                        child: Text(
+                          'No exercises planned',
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),

@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_page.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:routine/settings/settings_controller.dart';
+import 'package:routine/settings/settings_service.dart';
+import 'package:routine/settings/settings_view.dart';
 import 'package:routine/sport/sport_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  
+  final service = IsarService();
 
   // This widget is the root of your application.
   @override
@@ -35,7 +40,15 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      supportedLocales: const <Locale>[Locale('en', 'US'), Locale('en', 'DE')],
       home: const MyHomePage(title: 'Home'),
+      initialRoute: '/',
+      routes: {
+        '/home': (context) => HomePage(
+              service: service,
+            ),
+        '/settings': (context) => SettingsView(controller: SettingsController(SettingsService())),
+      },
     );
   }
 }
@@ -71,16 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      // appBar: AppBar(
-      //   // TRY THIS: Try changing the color here to a specific color (to
-      //   // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-      //   // change color while the other colors stay the same.
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   // Here we take the value from the MyHomePage object that was created by
-      //   // the App.build method, and use it to set our appbar title.
-      //   title: Text(widget.title),
-      // ),
-
       body: <Widget>[
         /// Home page
         HomePage(service: service),
@@ -113,7 +116,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ][currentPageIndex],
-
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {

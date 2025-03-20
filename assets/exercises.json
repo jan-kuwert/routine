@@ -1,0 +1,56 @@
+  [
+    {
+      "name": "pushups",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    },
+    {
+      "name": "pullups",
+      "type": "repetitions",
+      "max": 30,
+      "button1value": 5,
+      "button2value": 10
+    },
+    {
+      "name": "squats",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    },
+    {
+      "name": "plank",
+      "type": "time",
+      "max": 150
+    },
+    {
+      "name": "situps",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    },
+    {
+      "name": "leg raises",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    },
+    {
+      "name": "russian twists",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    },
+    {
+      "name": "mountain climbers",
+      "type": "repetitions",
+      "max": 50,
+      "button1value": 10,
+      "button2value": 15
+    }
+  ]
