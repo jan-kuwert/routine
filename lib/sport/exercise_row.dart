@@ -17,11 +17,11 @@ class ExerciseRow extends StatefulWidget {
   });
 
   @override
-  State<ExerciseRow> createState() => _ExerciseRowState();
+  State<ExerciseRow> createState() => ExerciseRowState();
 }
 
-class _ExerciseRowState extends State<ExerciseRow> {
-  late TextEditingController _pullupController;
+class ExerciseRowState extends State<ExerciseRow> {
+  late TextEditingController _controller;
   late FocusNode _focusNode;
 
   int get button1Value => widget.button1Value;
@@ -44,13 +44,13 @@ class _ExerciseRowState extends State<ExerciseRow> {
   @override
   void initState() {
     super.initState();
-    _pullupController = TextEditingController(text: counter.toString());
+    _controller = TextEditingController(text: counter.toString());
     _focusNode = FocusNode();
   }
 
   @override
   void dispose() {
-    _pullupController.dispose();
+    _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -76,7 +76,7 @@ class _ExerciseRowState extends State<ExerciseRow> {
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                           ),
-                          controller: _pullupController,
+                          controller: _controller,
                           validator: (String? value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter some text';

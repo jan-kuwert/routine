@@ -18,20 +18,20 @@ class DailyCard extends StatefulWidget {
 }
 
 class _DailyCardState extends State<DailyCard> {
-  // Path must match exactly how it's declared in pubspec.yaml
   final String jsonPath = 'assets/exercises.json';
-
-  late TextEditingController _pullupController;
-  late FocusNode _focusNode;
 
   static const exerciseNames = ['pushups', 'pullups'];
   late Map<String, dynamic> exercises = {};
 
+  final List<GlobalKey<ExerciseRowState>> _exerciseRowKeys =
+      <GlobalKey<ExerciseRowState>>[
+    for (var i = 0; i < exerciseNames.length; i++)
+      GlobalKey<ExerciseRowState>(),
+  ];
+
   @override
   void initState() {
     super.initState();
-    _pullupController = TextEditingController(text: pullupCounter.toString());
-    _focusNode = FocusNode();
     // We need to use Future.delayed because context isn't available immediately in initState
     Future.microtask(() => loadExercises());
   }
@@ -61,22 +61,14 @@ class _DailyCardState extends State<DailyCard> {
 
   // Getter for progress calculation
   double get totalProgress {
-    if (exerciseNames.isEmpty || exercises.isEmpty) return 0.0;
-
-    double sum = 0.0;
-    int validExercises = 0;
-
-    for (var type in exerciseNames) {
-      if (exercises.containsKey(type) &&
-          exercises[type] != null &&
-          exercises[type]['max'] != null &&
-          exercises[type]['count'] != null) {
-        sum += exercises[type]['count'] / exercises[type]['max'];
-        validExercises++;
-      }
+    double totalCounter = 0;
+    for (var exercise in exercises.entries) {
+      totalCounter += _exerciseRowKeys[exerciseNames.indexOf(exercise.key)]
+              .currentState
+              ?.counter ??
+          0;
     }
-
-    return validExercises > 0 ? sum / validExercises : 0.0;
+    return totalCounter;
   }
 
   int pushupCounter = 0;
@@ -86,8 +78,6 @@ class _DailyCardState extends State<DailyCard> {
 
   @override
   void dispose() {
-    _pullupController.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -158,6 +148,8 @@ class _DailyCardState extends State<DailyCard> {
                                 children: [
                                   for (var exercise in exercises.entries)
                                     ExerciseRow(
+                                      key: _exerciseRowKeys[
+                                          exerciseNames.indexOf(exercise.key)],
                                       title: exercise.key[0].toUpperCase() +
                                           exercise.key.substring(1),
                                       max: exercise.value['max'] ?? 0,

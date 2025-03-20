@@ -1,0 +1,2 @@
+/home/jk/repositories/routine/android/app/.cxx/Debug/1l3g5n6p/x86_64/CMakeFiles/edit_cache.dir
+/home/jk/repositories/routine/android/app/.cxx/Debug/1l3g5n6p/x86_64/CMakeFiles/rebuild_cache.dir
