@@ -4,16 +4,18 @@ import 'package:routine/routine_icon_pack_icons.dart';
 
 class ExerciseRow extends StatefulWidget {
   final String title;
-  final int max;
+  final int goal;
   final int button1Value;
   final int button2Value;
+  final Function(double) onProgressChange;
 
   const ExerciseRow({
     super.key,
-    required this.title,
-    required this.max,
-    required this.button1Value,
+    required this.title, // title of the exercise like 'Pushup'
+    required this.goal, // the goal of the exercise like '50' reps or '3:00'
+    required this.button1Value, // value of increment button 1
     required this.button2Value,
+    required this.onProgressChange, // callback to update the progress in parent
   });
 
   @override
@@ -26,18 +28,22 @@ class ExerciseRowState extends State<ExerciseRow> {
 
   int get button1Value => widget.button1Value;
   int get button2Value => widget.button2Value;
-  int get max => widget.max;
+  int get goal => widget.goal;
   String get title => widget.title;
 
   int counter = 0;
 
-  void _increment(int value) async {
+  void _increment(int increment) async {
+    int value = counter + increment;
+    debugPrint('Incrementing $title by $increment to $value');
+    _updateCounter(value);
+  }
+
+  void _updateCounter(int value) async {
     setState(() {
-      if (counter <= max - value) {
-        counter += value;
-      } else {
-        counter = max;
-      }
+      counter = value;
+      _controller.text = value.toString();
+      widget.onProgressChange(counter / goal > 1.0 ? 1.0 : counter / goal);
     });
   }
 
@@ -88,17 +94,21 @@ class ExerciseRowState extends State<ExerciseRow> {
                             LengthLimitingTextInputFormatter(2),
                           ],
                           keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            _updateCounter(
+                                value.isEmpty ? 0 : int.parse(value));
+                          },
                         ),
                       ),
                     ),
                     Text(
-                      '/$max $title',
+                      '/$goal $title',
                       style: const TextStyle(
                         fontSize: 16.0,
                       ),
                       softWrap: true,
                     ),
-                    if (counter == max)
+                    if (counter >= goal)
                       const Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: Icon(RoutineIconPack.check, color: Colors.green),
@@ -112,7 +122,7 @@ class ExerciseRowState extends State<ExerciseRow> {
                   TextButton(
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
-                          const Color.fromARGB(25, 0, 0, 0)),
+                          Theme.of(context).colorScheme.primaryContainer),
                     ),
                     onPressed: () {
                       _increment(button1Value);
@@ -122,22 +132,22 @@ class ExerciseRowState extends State<ExerciseRow> {
                   TextButton(
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
-                          const Color.fromARGB(25, 0, 0, 0)),
+                          Theme.of(context).colorScheme.primaryContainer),
                     ),
                     onPressed: () {
                       _increment(button2Value);
                     },
                     child: Text('+$button2Value'),
                   ),
-                  if (counter < max)
+                  if (counter < goal)
                     IconButton(
                       icon: const Icon(RoutineIconPack.check),
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all<Color>(
-                            const Color.fromARGB(25, 0, 0, 0)),
+                            Theme.of(context).colorScheme.primaryContainer),
                       ),
                       onPressed: () {
-                        _increment(max - counter);
+                        _increment(goal - counter);
                       },
                     ),
                 ],
@@ -145,9 +155,9 @@ class ExerciseRowState extends State<ExerciseRow> {
             ],
           ),
         ),
-        if (counter < max)
+        if (counter < goal)
           LinearProgressIndicator(
-            value: counter / max,
+            value: counter / goal,
             minHeight: 7.0,
             borderRadius: BorderRadius.circular(20.0),
           ),

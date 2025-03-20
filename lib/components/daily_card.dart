@@ -22,19 +22,9 @@ class _DailyCardState extends State<DailyCard> {
 
   static const exerciseNames = ['pushups', 'pullups'];
   late Map<String, dynamic> exercises = {};
+  final Map<String, double> _exerciseProgress = {};
 
-  final List<GlobalKey<ExerciseRowState>> _exerciseRowKeys =
-      <GlobalKey<ExerciseRowState>>[
-    for (var i = 0; i < exerciseNames.length; i++)
-      GlobalKey<ExerciseRowState>(),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // We need to use Future.delayed because context isn't available immediately in initState
-    Future.microtask(() => loadExercises());
-  }
+  double totalProgress = 0.0;
 
   Future<void> loadExercises() async {
     try {
@@ -55,26 +45,33 @@ class _DailyCardState extends State<DailyCard> {
       });
     } catch (e) {
       debugPrint('Error loading Exercises: $e');
+
       exercises = {};
     }
   }
 
-  // Getter for progress calculation
-  double get totalProgress {
-    double totalCounter = 0;
-    for (var exercise in exercises.entries) {
-      totalCounter += _exerciseRowKeys[exerciseNames.indexOf(exercise.key)]
-              .currentState
-              ?.counter ??
-          0;
-    }
-    return totalCounter;
+  final List<GlobalKey<ExerciseRowState>> _exerciseRowKeys =
+      <GlobalKey<ExerciseRowState>>[
+    for (var i = 0; i < exerciseNames.length; i++)
+      GlobalKey<ExerciseRowState>(),
+  ];
+
+  void _updateProgress(String exerciseName, double progress) {
+    _exerciseProgress[exerciseName] = progress;
+
+    debugPrint('Progress: $_exerciseProgress');
+
+    totalProgress =
+        _exerciseProgress.values.reduce((a, b) => a + b) / exerciseNames.length;
+    setState(() {}); // Only rebuild when total progress changes
   }
 
-  int pushupCounter = 0;
-  int maxPushups = 50;
-  int pullupCounter = 0;
-  int maxPullups = 25;
+  @override
+  void initState() {
+    super.initState();
+    // We need to use Future.delayed because context isn't available immediately in initState
+    Future.microtask(() => loadExercises());
+  }
 
   @override
   void dispose() {
@@ -92,10 +89,7 @@ class _DailyCardState extends State<DailyCard> {
             Row(
               children: [
                 Text(widget.title, style: const TextStyle(fontSize: 18.0)),
-                if (exerciseNames.isNotEmpty &&
-                    ((pushupCounter / maxPushups + pullupCounter / maxPullups) /
-                            2) ==
-                        1)
+                if (exerciseNames.isNotEmpty && totalProgress >= 1)
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
                     child: Icon(
@@ -106,8 +100,7 @@ class _DailyCardState extends State<DailyCard> {
               ],
             ),
             if (exerciseNames.isNotEmpty)
-              Text(
-                  '${(((pushupCounter / maxPushups + pullupCounter / maxPullups) / 2) * 100).round()}%',
+              Text('${(totalProgress * 100).round()}%',
                   style: const TextStyle(fontSize: 18.0)),
           ],
         ),
@@ -124,11 +117,9 @@ class _DailyCardState extends State<DailyCard> {
               Positioned.fill(
                 child: exerciseNames.isNotEmpty
                     ? LinearProgressIndicator(
-                        value: (pushupCounter / maxPushups +
-                                pullupCounter / maxPullups) /
-                            2,
+                        value: totalProgress,
                         minHeight: 1.0,
-                        color: const Color.fromARGB(10, 0, 0, 0),
+                        color: const Color.fromARGB(5, 0, 0, 0),
                         backgroundColor: Colors.transparent,
                         borderRadius: BorderRadius.circular(20.0),
                       )
@@ -144,20 +135,24 @@ class _DailyCardState extends State<DailyCard> {
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Column(
-                                spacing: 10.0,
+                                spacing: 20.0,
                                 children: [
                                   for (var exercise in exercises.entries)
                                     ExerciseRow(
-                                      key: _exerciseRowKeys[
-                                          exerciseNames.indexOf(exercise.key)],
-                                      title: exercise.key[0].toUpperCase() +
-                                          exercise.key.substring(1),
-                                      max: exercise.value['max'] ?? 0,
-                                      button1Value:
-                                          (exercise.value['button1value'] ?? 0),
-                                      button2Value:
-                                          (exercise.value['button2value'] ?? 0),
-                                    ),
+                                        key: _exerciseRowKeys[exerciseNames
+                                            .indexOf(exercise.key)],
+                                        title: exercise.key[0].toUpperCase() +
+                                            exercise.key.substring(1),
+                                        goal: exercise.value['goal'] ?? 0,
+                                        button1Value:
+                                            (exercise.value['button1value'] ??
+                                                0),
+                                        button2Value:
+                                            (exercise.value['button2value'] ??
+                                                0),
+                                        onProgressChange: (progress) =>
+                                            _updateProgress(
+                                                exercise.key, progress)),
                                 ],
                               ),
                             ),
