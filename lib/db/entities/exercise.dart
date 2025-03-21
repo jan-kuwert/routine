@@ -1,11 +1,9 @@
 import 'package:isar/isar.dart';
 
-import 'workout.dart';
-
 part 'exercise.g.dart';
 
 enum ExerciseType {
-  repititons,
+  repetitions,
   duration,
 }
 
@@ -32,6 +30,4 @@ class Exercise {
   @enumerated
   late ExerciseType type;
 
-  @Backlink(to: "exercises")
-  final dailyWorkouts = IsarLinks<Workout>();
 }

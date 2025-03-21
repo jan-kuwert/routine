@@ -8,7 +8,7 @@ import 'package:routine/components/goal_card.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
-import 'package:routine/sport/add_sheet.dart';
+import 'package:routine/sport/new_workout_goal.dart';
 import 'package:routine/sport/create_exercise_dialog.dart';
 
 class SportPage extends StatefulWidget {
@@ -44,7 +44,7 @@ class _SportPageState extends State<SportPage> {
             ..type = ExerciseType.values.firstWhere(
               (type) =>
                   type.name == decoded[i]['type'].toString().toLowerCase(),
-              orElse: () => ExerciseType.repititons,
+              orElse: () => ExerciseType.repetitions,
             ));
         }
       }

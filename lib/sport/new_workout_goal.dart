@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routine/db/entities/exercise.dart';
+import 'package:routine/db/entities/goal.dart';
+import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
@@ -20,21 +22,36 @@ class AddSheet extends StatefulWidget {
 class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
 
-  final TextEditingController _exerciseController = TextEditingController();
-
   final DateTime _workoutDate = DateTime.now();
   final DateTime _goalStartDate = DateTime.now();
   final DateTime _goalEndDate = DateTime.now();
 
   late String _selectedType = 'Workout';
   final List<String> _selectedExercises = [];
+  final Map<String, TextEditingController> _exerciseControllers = {};
 
-  late Future<List<Exercise>> _exercises;
+  List<ExerciseTarget> _getTargets() {
+    final List<ExerciseTarget> targets = [];
+    for (var exercise in _selectedExercises) {
+      final value = _exerciseControllers[exercise]!.text.replaceAll(',', '.');
+      targets.add(ExerciseTarget()
+        ..exercise = exercise
+        ..target = double.parse(value));
+    }
+    return targets;
+  }
 
-  @override
-  void initState() {
-    super.initState();
-    _exercises = widget.service.getAllExercises();
+  List<ExerciseEntry> _getExercises() {
+    final List<ExerciseEntry> exercises = [];
+    for (var exercise in _selectedExercises) {
+      final value = _exerciseControllers[exercise]!.text.replaceAll(',', '.');
+
+      exercises.add(ExerciseEntry()
+        ..exerciseName = exercise
+        ..counter = 0
+        ..target = double.parse(value));
+    }
+    return exercises;
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -60,15 +77,31 @@ class _AddSheetState extends State<AddSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (_selectedType == 'Workout')
-                            const Icon(RoutineIconPack.exercise)
-                          else if (_selectedType == 'Goal')
-                            const Icon(RoutineIconPack.emoji_events),
                           const SizedBox(width: 8.0),
-                          Text(
-                            'Add a ${_selectedType.toLowerCase()}',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
+                          if (_selectedType == 'Workout')
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Add new ${_selectedType.toLowerCase()}',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(RoutineIconPack.exercise),
+                              ],
+                            )
+                          else if (_selectedType == 'Goal')
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Set new ${_selectedType.toLowerCase()}',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(RoutineIconPack.emoji_events),
+                              ],
+                            )
                         ],
                       ),
                       const SizedBox(height: 30),
@@ -238,38 +271,84 @@ class _AddSheetState extends State<AddSheet> {
                                     Expanded(
                                       flex: 3,
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surfaceContainerHigh,
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        child: TextField(
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                          decoration: InputDecoration(
-                                            labelText: 'Reps',
-                                            border: InputBorder.none,
-                                            floatingLabelStyle: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                            ),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHigh,
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
                                           ),
-                                        ),
-                                      ),
+                                          child: FutureBuilder<Exercise?>(
+                                              future: widget.service
+                                                  .getExerciseByName(exercise),
+                                              builder: (context, snapshot) {
+                                                if (!snapshot.hasData) {
+                                                  return const CircularProgressIndicator();
+                                                }
+                                                final exerciseData =
+                                                    snapshot.data!;
+                                                // Use a controller based on the exercise name
+                                                final controller =
+                                                    TextEditingController();
+                                                // Store in a map in the parent widget if it doesn't exist yet
+                                                if (!_exerciseControllers
+                                                    .containsKey(exercise)) {
+                                                  _exerciseControllers[
+                                                      exercise] = controller;
+                                                }
+                                                return TextField(
+                                                  controller:
+                                                      _exerciseControllers[
+                                                          exercise],
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                  inputFormatters: [
+                                                    exerciseData.type ==
+                                                            ExerciseType
+                                                                .repetitions
+                                                        ? FilteringTextInputFormatter
+                                                            .digitsOnly
+                                                        : FilteringTextInputFormatter
+                                                            .allow(RegExp(
+                                                                r'[1-9][0-9]*[,.]?[0-9]*'))
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    labelText:
+                                                        exerciseData.type ==
+                                                                ExerciseType
+                                                                    .duration
+                                                            ? 'Duration (min)'
+                                                            : 'Reps',
+                                                    border: InputBorder.none,
+                                                    floatingLabelStyle:
+                                                        TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .secondary,
+                                                    ),
+                                                  ),
+                                                  onChanged: (value) {
+                                                    // Ensure empty field doesn't remain in the form
+                                                    if (value.isEmpty) {
+                                                      _exerciseControllers[
+                                                              exercise]!
+                                                          .text = "1";
+                                                    }
+                                                  },
+                                                );
+                                              })),
                                     ),
                                   ],
                                 ),
                               ),
                             )),
                       const SizedBox(height: 16),
+                      OutlinedButton(
+                          onPressed: () =>
+                              {debugPrint(_getTargets().toString())},
+                          child: Text('Debug print Data')),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -280,20 +359,24 @@ class _AddSheetState extends State<AddSheet> {
                             ),
                           ),
                           onPressed: () {
-                            // if (_selectedType == 'Workout') {
-                            //   widget.service.addWorkout(Workout()
-                            //     ..date = _workoutDate
-                            //     ..exercises = _selectedExercises);
-                            // } else if (_selectedType == 'Goal') {
-                            //   widget.service.addGoal(Goal()
-                            //     ..name = _nameController.text
-                            //     ..startDate = _goalStartDate
-                            //     ..endDate = _goalEndDate
-                            //     ..exercises = _selectedExercises);
-                            // }
+                            if (_selectedType == 'Workout') {
+                              widget.service.addWorkout(Workout(
+                                date: _workoutDate,
+                                exercises: _getExercises(),
+                              ));
+                            } else if (_selectedType == 'Goal') {
+                              widget.service.addGoal(
+                                Goal(
+                                  title: _nameController.text,
+                                  start: _goalStartDate,
+                                  end: _goalEndDate,
+                                  targets: _getTargets(),
+                                ),
+                              );
+                            }
                             Navigator.pop(context);
                           },
-                          child: const Text('Save'),
+                          child: Text('Save'),
                         ),
                       ),
                     ],

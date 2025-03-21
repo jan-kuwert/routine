@@ -4,7 +4,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/workout.dart';
-import 'package:routine/db/entities/workout_entry.dart';
 
 class IsarService {
   late Future<Isar> db;
@@ -54,6 +53,11 @@ class IsarService {
     return isar.exercises.where().sortByCategory().findAll();
   }
 
+  Future<Exercise?> getExerciseByName(String name) async {
+    final isar = await db;
+    return isar.exercises.filter().nameEqualTo(name).findFirst();
+  }
+
   Future<List<Workout>> getAllWorkouts() async {
     final isar = await db;
     return isar.workouts.where().findAll();
@@ -64,28 +68,30 @@ class IsarService {
     yield* isar.exercises.where().watch(fireImmediately: true);
   }
 
-  Future<void> addWorkoutEntry(WorkoutEntry entry) async {
+  Future<void> addExerciseEntries(
+      Workout workout, List<ExerciseEntry> entries) async {
     final isar = await db;
-    await isar.writeTxn(() => isar.workoutEntrys.put(entry));
+    await isar.writeTxn(() => isar.workouts
+            .filter()
+            .idEqualTo(workout.id)
+            .findFirst()
+            .then((workout) {
+          if (workout == null) {
+            throw ArgumentError('Workout not found');
+          }
+          workout.exercises.addAll(entries);
+        }));
   }
 
-  Future<List<WorkoutEntry>> getEntriesForExercise(Exercise exercise) async {
-    final isar = await db;
-    return isar.workoutEntrys.filter().exercise((q) {
-      return q.idEqualTo(exercise.id);
-    }).findAll();
+  Future<void> addExerciseEntry(Workout workout, ExerciseEntry entry) async {
+    return addExerciseEntries(workout, [entry]);
   }
 
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return Isar.open(
-        [
-          ExerciseSchema,
-          GoalSchema,
-          WorkoutSchema,
-          WorkoutEntrySchema
-        ],
+        [ExerciseSchema, GoalSchema, WorkoutSchema],
         directory: dir.path,
         inspector: true,
       );

@@ -41,15 +41,7 @@ const ExerciseSchema = CollectionSchema(
   deserializeProp: _exerciseDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {
-    r'dailyWorkouts': LinkSchema(
-      id: 838888609456381733,
-      name: r'dailyWorkouts',
-      target: r'Workout',
-      single: false,
-      linkName: r'exercises',
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _exerciseGetId,
   getLinks: _exerciseGetLinks,
@@ -91,7 +83,7 @@ Exercise _exerciseDeserialize(
   object.id = id;
   object.name = reader.readString(offsets[1]);
   object.type = _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[2])] ??
-      ExerciseType.repititons;
+      ExerciseType.repetitions;
   return object;
 }
 
@@ -109,7 +101,7 @@ P _exerciseDeserializeProp<P>(
       return (reader.readString(offset)) as P;
     case 2:
       return (_ExercisetypeValueEnumMap[reader.readByteOrNull(offset)] ??
-          ExerciseType.repititons) as P;
+          ExerciseType.repetitions) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -136,11 +128,11 @@ const _ExercisecategoryValueEnumMap = {
   7: ExerciseCategory.other,
 };
 const _ExercisetypeEnumValueMap = {
-  'repititons': 0,
+  'repetitions': 0,
   'duration': 1,
 };
 const _ExercisetypeValueEnumMap = {
-  0: ExerciseType.repititons,
+  0: ExerciseType.repetitions,
   1: ExerciseType.duration,
 };
 
@@ -149,13 +141,11 @@ Id _exerciseGetId(Exercise object) {
 }
 
 List<IsarLinkBase<dynamic>> _exerciseGetLinks(Exercise object) {
-  return [object.dailyWorkouts];
+  return [];
 }
 
 void _exerciseAttach(IsarCollection<dynamic> col, Id id, Exercise object) {
   object.id = id;
-  object.dailyWorkouts
-      .attach(col, col.isar.collection<Workout>(), r'dailyWorkouts', id);
 }
 
 extension ExerciseQueryWhereSort on QueryBuilder<Exercise, Exercise, QWhere> {
@@ -528,68 +518,7 @@ extension ExerciseQueryObject
     on QueryBuilder<Exercise, Exercise, QFilterCondition> {}
 
 extension ExerciseQueryLinks
-    on QueryBuilder<Exercise, Exercise, QFilterCondition> {
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> dailyWorkouts(
-      FilterQuery<Workout> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'dailyWorkouts');
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'dailyWorkouts', length, true, length, true);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'dailyWorkouts', 0, true, 0, true);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'dailyWorkouts', 0, false, 999999, true);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'dailyWorkouts', 0, true, length, include);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'dailyWorkouts', length, include, 999999, true);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      dailyWorkoutsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(
-          r'dailyWorkouts', lower, includeLower, upper, includeUpper);
-    });
-  }
-}
+    on QueryBuilder<Exercise, Exercise, QFilterCondition> {}
 
 extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByCategory() {

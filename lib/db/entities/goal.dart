@@ -1,7 +1,5 @@
 import 'package:isar/isar.dart';
 
-import 'exercise.dart';
-
 part 'goal.g.dart';
 
 @Collection()
@@ -14,8 +12,20 @@ class Goal {
 
   late DateTime end;
 
-  late double progress;
+  late double progress = 0;
 
-  final exercises = IsarLinks<Exercise>();
+  late List<ExerciseTarget> targets;
 
+  Goal({
+    required this.title,
+    required this.start,
+    required this.end,
+    required this.targets,
+  });
+}
+
+@Embedded()
+class ExerciseTarget {
+  late String exercise;
+  late double target;
 }

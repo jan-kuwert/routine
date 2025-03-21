@@ -1,7 +1,4 @@
 import 'package:isar/isar.dart';
-import 'package:routine/db/entities/workout_entry.dart';
-
-import 'exercise.dart';
 
 part 'workout.g.dart';
 
@@ -9,11 +6,23 @@ part 'workout.g.dart';
 class Workout {
   Id id = Isar.autoIncrement;
 
-  late DateTime date = DateTime.now();
+  late DateTime date;
 
   late double totalProgress = 0;
 
-  var exercises = IsarLinks<Exercise>();
+  final List<ExerciseEntry> exercises;
 
-  final workoutEntry = IsarLinks<WorkoutEntry>();
+  Workout({
+    required this.date,
+    required this.exercises,
+  });
+}
+
+@Embedded()
+class ExerciseEntry {
+  late String exerciseName;
+  late double counter = 0;
+  late double target;
+  late DateTime created = DateTime.now();
+  late DateTime updated = DateTime.now();
 }
