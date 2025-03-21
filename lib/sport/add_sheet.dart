@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
@@ -21,12 +20,22 @@ class AddSheet extends StatefulWidget {
 class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
 
+  final TextEditingController _exerciseController = TextEditingController();
+
   final DateTime _workoutDate = DateTime.now();
   final DateTime _goalStartDate = DateTime.now();
   final DateTime _goalEndDate = DateTime.now();
 
   late String _selectedType = 'Workout';
   final List<String> _selectedExercises = [];
+
+  late Future<List<Exercise>> _exercises;
+
+  @override
+  void initState() {
+    super.initState();
+    _exercises = widget.service.getAllExercises();
+  }
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -48,42 +57,105 @@ class _AddSheetState extends State<AddSheet> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: <Widget>[
-                      Text(
-                        'Add a ${_selectedType.toLowerCase()}',
-                        style: Theme.of(context).textTheme.titleLarge,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (_selectedType == 'Workout')
+                            const Icon(RoutineIconPack.exercise)
+                          else if (_selectedType == 'Goal')
+                            const Icon(RoutineIconPack.emoji_events),
+                          const SizedBox(width: 8.0),
+                          Text(
+                            'Add a ${_selectedType.toLowerCase()}',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 30),
                       if (_selectedType == 'Workout')
                         Column(
                           children: [
-                            DateInputWidget(
-                                selectedDate: _workoutDate, dateLabel: 'Date'),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: DateInputWidget(
+                                  selectedDate: _workoutDate,
+                                  dateLabel: 'Date'),
+                            ),
                           ],
                         ),
                       if (_selectedType == 'Goal')
                         Column(
                           children: [
-                            TextField(
-                              controller: _nameController,
-                              decoration: InputDecoration(
-                                labelText: 'Goal Title',
-                                border: InputBorder.none,
-                                floatingLabelStyle: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: TextField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Goal Title',
+                                  border: InputBorder.none,
+                                  floatingLabelStyle: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                  ),
                                 ),
                               ),
                             ),
-                            const Divider(),
-                            DateInputWidget(
-                                selectedDate: _goalStartDate,
-                                dateLabel: 'Start Date'),
                             const SizedBox(height: 16),
-                            DateInputWidget(
-                                selectedDate: _goalEndDate,
-                                dateLabel: 'End Date'),
+                            Row(
+                              spacing: 16,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHigh,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: DateInputWidget(
+                                      selectedDate: _goalStartDate,
+                                      dateLabel: 'Start Date',
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHigh,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: DateInputWidget(
+                                        selectedDate: _goalEndDate,
+                                        dateLabel: 'End Date'),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
+                      const SizedBox(
+                        height: 8.0,
+                      ),
                       const Divider(),
                       const SizedBox(
                         height: 8.0,
@@ -93,68 +165,111 @@ class _AddSheetState extends State<AddSheet> {
                         builder:
                             (context, AsyncSnapshot<List<Exercise>> snapshot) {
                           if (snapshot.hasData) {
-                            return ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return const LinearGradient(
-                                  stops: [0.0, 0.8, 1.0],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: <Color>[
-                                    Colors.black,
-                                    Colors.black,
-                                    Colors.transparent
-                                  ],
-                                ).createShader(bounds);
-                              },
-                              blendMode: BlendMode.dstIn,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    ...snapshot.data!.take(5).map(
-                                          (exercise) => Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 10.0),
-                                            child: FilterChip(
-                                              label: Text(exercise.name),
-                                              selected: _selectedExercises
-                                                  .contains(exercise.name),
-                                              onSelected: (bool selected) {
-                                                setState(() {
-                                                  if (selected) {
-                                                    _selectedExercises
-                                                        .add(exercise.name);
-                                                  } else {
-                                                    _selectedExercises
-                                                        .remove(exercise.name);
-                                                  }
-                                                });
-                                              },
-                                              selectedColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHighest,
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerLow,
-                                            ),
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  ...snapshot.data!.take(5).map(
+                                        (exercise) => Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 10.0),
+                                          child: FilterChip(
+                                            label: Text(exercise.name),
+                                            selected: _selectedExercises
+                                                .contains(exercise.name),
+                                            onSelected: (bool selected) {
+                                              setState(() {
+                                                if (selected) {
+                                                  _selectedExercises
+                                                      .add(exercise.name);
+                                                } else {
+                                                  _selectedExercises
+                                                      .remove(exercise.name);
+                                                }
+                                              });
+                                            },
+                                            selectedColor: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerLow,
                                           ),
                                         ),
-                                    SelectDialog(
-                                      list: snapshot.data!,
-                                      selectedList: _selectedExercises,
-                                      title: 'Select Exercise(s)',
-                                    ),
-                                  ],
-                                ),
+                                      ),
+                                  SelectDialog(
+                                    list: snapshot.data!,
+                                    selectedList: _selectedExercises,
+                                    title: 'Select Exercise(s)',
+                                  ),
+                                ],
                               ),
                             );
                           }
+
                           return const Center(
                               child: CircularProgressIndicator());
                         },
                       ),
                       const SizedBox(height: 16),
-                      const SizedBox(height: 40),
+                      if (_selectedExercises.isNotEmpty)
+                        ..._selectedExercises.map((exercise) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerLow,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        exercise[0].toUpperCase() +
+                                            exercise.substring(1),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHigh,
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                        ),
+                                        child: TextField(
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          decoration: InputDecoration(
+                                            labelText: 'Reps',
+                                            border: InputBorder.none,
+                                            floatingLabelStyle: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -165,16 +280,17 @@ class _AddSheetState extends State<AddSheet> {
                             ),
                           ),
                           onPressed: () {
-                            if (_selectedType == 'Workout')
-                              widget.service.addDailyWorkout(DailyWorkout()
-                                ..date = _workoutDate
-                                ..exercises = _selectedExercises);
-                            else if (_selectedType == 'Goal')
-                              widget.service.addGoal(Goal()
-                                ..name = _nameController.text
-                                ..startDate = _goalStartDate
-                                ..endDate = _goalEndDate
-                                ..exercises = _selectedExercises);
+                            // if (_selectedType == 'Workout') {
+                            //   widget.service.addWorkout(Workout()
+                            //     ..date = _workoutDate
+                            //     ..exercises = _selectedExercises);
+                            // } else if (_selectedType == 'Goal') {
+                            //   widget.service.addGoal(Goal()
+                            //     ..name = _nameController.text
+                            //     ..startDate = _goalStartDate
+                            //     ..endDate = _goalEndDate
+                            //     ..exercises = _selectedExercises);
+                            // }
                             Navigator.pop(context);
                           },
                           child: const Text('Save'),
@@ -197,8 +313,10 @@ class _AddSheetState extends State<AddSheet> {
       key: widget.fabKey,
       type: ExpandableFabType.up,
       overlayStyle: ExpandableFabOverlayStyle(
-        color:
-            Theme.of(context).colorScheme.surfaceContainerHigh.withOpacity(0.9),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHigh
+            .withValues(alpha: .9),
       ),
       openButtonBuilder: RotateFloatingActionButtonBuilder(
         child: const Icon(RoutineIconPack.add),

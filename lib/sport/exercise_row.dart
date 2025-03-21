@@ -90,7 +90,7 @@ class ExerciseRowState extends State<ExerciseRow> {
                           },
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(2),
+                            LengthLimitingTextInputFormatter(3),
                           ],
                           keyboardType: TextInputType.number,
                           onChanged: (value) {

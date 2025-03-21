@@ -130,30 +130,25 @@ class _DailyCardState extends State<DailyCard> {
                 child: exerciseNames.isNotEmpty
                     ? Column(
                         children: [
-
-                               Column(
-                                spacing: 20.0,
-                                children: [
-                                  for (var exercise in exercises.entries)
-                                    ExerciseRow(
-                                        key: _exerciseRowKeys[exerciseNames
-                                            .indexOf(exercise.key)],
-                                        title: exercise.key[0].toUpperCase() +
-                                            exercise.key.substring(1),
-                                        goal: exercise.value['goal'] ?? 0,
-                                        button1Value:
-                                            (exercise.value['button1value'] ??
-                                                0),
-                                        button2Value:
-                                            (exercise.value['button2value'] ??
-                                                0),
-                                        onProgressChange: (progress) =>
-                                            _updateProgress(
-                                                exercise.key, progress)),
-                                ],
-                              ),
-
-
+                          Column(
+                            spacing: 20.0,
+                            children: [
+                              for (var exercise in exercises.entries)
+                                ExerciseRow(
+                                    key: _exerciseRowKeys[
+                                        exerciseNames.indexOf(exercise.key)],
+                                    title: exercise.key[0].toUpperCase() +
+                                        exercise.key.substring(1),
+                                    goal: exercise.value['goal'] ?? 0,
+                                    button1Value:
+                                        (exercise.value['button1value'] ?? 0),
+                                    button2Value:
+                                        (exercise.value['button2value'] ?? 0),
+                                    onProgressChange: (progress) =>
+                                        _updateProgress(
+                                            exercise.key, progress)),
+                            ],
+                          ),
                         ],
                       )
                     : const Center(

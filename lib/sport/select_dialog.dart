@@ -37,18 +37,19 @@ class _SelectDialogState extends State<SelectDialog> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: widget.list.map((exercise) {
+                  int index = widget.list.indexOf(exercise);
                   return CheckboxListTile(
-                    value: false,
-                    title: Text(exercise.name),
-                    onChanged: (value) => setState(() {
-                      _checkboxValues[0] = value;
-                      if (value == true) {
-                        widget.selectedList.add(exercise.name);
-                      } else {
-                        widget.selectedList.remove(exercise.name);
-                      }
-                    }),
-                  );
+                      value: _checkboxValues[index],
+                      title: Text(exercise.name),
+                      onChanged: (value) => setState(() {
+                        _checkboxValues[index] = value;
+                        if (value == true) {
+                          widget.selectedList.add(exercise.name);
+                        } else {
+                          widget.selectedList.remove(exercise.name);
+                        }
+                      }),
+                    );
                 }).toList(),
               );
             },

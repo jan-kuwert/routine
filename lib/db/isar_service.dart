@@ -51,7 +51,7 @@ class IsarService {
 
   Future<List<Exercise>> getAllExercises() async {
     final isar = await db;
-    return isar.exercises.where().findAll();
+    return isar.exercises.where().sortByCategory().findAll();
   }
 
   Future<List<Workout>> getAllWorkouts() async {
@@ -84,7 +84,8 @@ class IsarService {
           ExerciseSchema,
           GoalSchema,
           WorkoutSchema,
-        ], // Add WorkoutEntrySchema
+          WorkoutEntrySchema
+        ],
         directory: dir.path,
         inspector: true,
       );

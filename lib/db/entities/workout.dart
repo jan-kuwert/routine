@@ -13,7 +13,7 @@ class Workout {
 
   late double totalProgress = 0;
 
-  final exercises = IsarLinks<Exercise>();
+  var exercises = IsarLinks<Exercise>();
 
   final workoutEntry = IsarLinks<WorkoutEntry>();
 }
