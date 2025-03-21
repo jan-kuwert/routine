@@ -35,7 +35,6 @@ class ExerciseRowState extends State<ExerciseRow> {
 
   void _increment(int increment) async {
     int value = counter + increment;
-    debugPrint('Incrementing $title by $increment to $value');
     _updateCounter(value);
   }
 

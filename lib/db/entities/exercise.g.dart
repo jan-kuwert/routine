@@ -43,9 +43,9 @@ const ExerciseSchema = CollectionSchema(
   indexes: {},
   links: {
     r'dailyWorkouts': LinkSchema(
-      id: -6020892104133005967,
+      id: 838888609456381733,
       name: r'dailyWorkouts',
-      target: r'DailyWorkout',
+      target: r'Workout',
       single: false,
       linkName: r'exercises',
     )
@@ -87,11 +87,11 @@ Exercise _exerciseDeserialize(
   final object = Exercise();
   object.category =
       _ExercisecategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
-          ExerciseCategory.upperBody;
+          ExerciseCategory.chest;
   object.id = id;
   object.name = reader.readString(offsets[1]);
   object.type = _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[2])] ??
-      ExerciseType.count;
+      ExerciseType.repititons;
   return object;
 }
 
@@ -104,38 +104,44 @@ P _exerciseDeserializeProp<P>(
   switch (propertyId) {
     case 0:
       return (_ExercisecategoryValueEnumMap[reader.readByteOrNull(offset)] ??
-          ExerciseCategory.upperBody) as P;
+          ExerciseCategory.chest) as P;
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
       return (_ExercisetypeValueEnumMap[reader.readByteOrNull(offset)] ??
-          ExerciseType.count) as P;
+          ExerciseType.repititons) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
 const _ExercisecategoryEnumValueMap = {
-  'upperBody': 0,
-  'lowerBody': 1,
-  'core': 2,
-  'fullBody': 3,
-  'other': 4,
+  'chest': 0,
+  'back': 1,
+  'arms': 2,
+  'legs': 3,
+  'core': 4,
+  'fullBody': 5,
+  'stretch': 6,
+  'other': 7,
 };
 const _ExercisecategoryValueEnumMap = {
-  0: ExerciseCategory.upperBody,
-  1: ExerciseCategory.lowerBody,
-  2: ExerciseCategory.core,
-  3: ExerciseCategory.fullBody,
-  4: ExerciseCategory.other,
+  0: ExerciseCategory.chest,
+  1: ExerciseCategory.back,
+  2: ExerciseCategory.arms,
+  3: ExerciseCategory.legs,
+  4: ExerciseCategory.core,
+  5: ExerciseCategory.fullBody,
+  6: ExerciseCategory.stretch,
+  7: ExerciseCategory.other,
 };
 const _ExercisetypeEnumValueMap = {
-  'count': 0,
-  'time': 1,
+  'repititons': 0,
+  'duration': 1,
 };
 const _ExercisetypeValueEnumMap = {
-  0: ExerciseType.count,
-  1: ExerciseType.time,
+  0: ExerciseType.repititons,
+  1: ExerciseType.duration,
 };
 
 Id _exerciseGetId(Exercise object) {
@@ -149,7 +155,7 @@ List<IsarLinkBase<dynamic>> _exerciseGetLinks(Exercise object) {
 void _exerciseAttach(IsarCollection<dynamic> col, Id id, Exercise object) {
   object.id = id;
   object.dailyWorkouts
-      .attach(col, col.isar.collection<DailyWorkout>(), r'dailyWorkouts', id);
+      .attach(col, col.isar.collection<Workout>(), r'dailyWorkouts', id);
 }
 
 extension ExerciseQueryWhereSort on QueryBuilder<Exercise, Exercise, QWhere> {
@@ -524,7 +530,7 @@ extension ExerciseQueryObject
 extension ExerciseQueryLinks
     on QueryBuilder<Exercise, Exercise, QFilterCondition> {
   QueryBuilder<Exercise, Exercise, QAfterFilterCondition> dailyWorkouts(
-      FilterQuery<DailyWorkout> q) {
+      FilterQuery<Workout> q) {
     return QueryBuilder.apply(this, (query) {
       return query.link(q, r'dailyWorkouts');
     });

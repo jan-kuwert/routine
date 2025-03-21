@@ -2,15 +2,16 @@ import 'package:isar/isar.dart';
 
 import 'exercise.dart';
 
-part 'daily_workout.g.dart';
+part 'goal_entry.g.dart';
 
 @Collection()
-class DailyWorkout {
+class GoalEntry {
   Id id = Isar.autoIncrement;
 
+  @Index()
   late DateTime date = DateTime.now();
+  late int goal;
 
-  final exercises = IsarLinks<Exercise>();
-
-  late double progress = 0;
+  // Link to the exercise
+  final exercise = IsarLink<Exercise>();
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/entities/exercise.dart';
+import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
@@ -163,6 +165,16 @@ class _AddSheetState extends State<AddSheet> {
                             ),
                           ),
                           onPressed: () {
+                            if (_selectedType == 'Workout')
+                              widget.service.addDailyWorkout(DailyWorkout()
+                                ..date = _workoutDate
+                                ..exercises = _selectedExercises);
+                            else if (_selectedType == 'Goal')
+                              widget.service.addGoal(Goal()
+                                ..name = _nameController.text
+                                ..startDate = _goalStartDate
+                                ..endDate = _goalEndDate
+                                ..exercises = _selectedExercises);
                             Navigator.pop(context);
                           },
                           child: const Text('Save'),

@@ -13,7 +13,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-  
+
   final service = IsarService();
 
   // This widget is the root of your application.
@@ -47,7 +47,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(
               service: service,
             ),
-        '/settings': (context) => SettingsView(controller: SettingsController(SettingsService())),
+        '/settings': (context) =>
+            SettingsView(controller: SettingsController(SettingsService())),
       },
     );
   }
@@ -77,12 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       body: <Widget>[
         /// Home page

@@ -130,11 +130,8 @@ class _DailyCardState extends State<DailyCard> {
                 child: exerciseNames.isNotEmpty
                     ? Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: Column(
+
+                               Column(
                                 spacing: 20.0,
                                 children: [
                                   for (var exercise in exercises.entries)
@@ -155,8 +152,8 @@ class _DailyCardState extends State<DailyCard> {
                                                 exercise.key, progress)),
                                 ],
                               ),
-                            ),
-                          ),
+
+
                         ],
                       )
                     : const Center(

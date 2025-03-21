@@ -2,6 +2,7 @@
     {
       "name": "pushups",
       "type": "repetitions",
+      "category": "chest",
       "goal": 50,
       "button1value": 10,
       "button2value": 15
@@ -9,6 +10,7 @@
     {
       "name": "pullups",
       "type": "repetitions",
+      "category": "back",
       "goal": 30,
       "button1value": 5,
       "button2value": 10
@@ -16,18 +18,21 @@
     {
       "name": "squats",
       "type": "repetitions",
+      "category": "legs",
       "goal": 50,
       "button1value": 10,
       "button2value": 15
     },
     {
       "name": "plank",
-      "type": "time",
+      "type": "duration",
+      "category": "core",
       "goal": 150
     },
     {
       "name": "situps",
       "type": "repetitions",
+      "category": "core",
       "goal": 50,
       "button1value": 10,
       "button2value": 15
@@ -35,6 +40,7 @@
     {
       "name": "leg raises",
       "type": "repetitions",
+      "category": "core",
       "goal": 50,
       "button1value": 10,
       "button2value": 15
@@ -42,6 +48,7 @@
     {
       "name": "russian twists",
       "type": "repetitions",
+      "category": "core",
       "goal": 50,
       "button1value": 10,
       "button2value": 15
@@ -49,6 +56,7 @@
     {
       "name": "mountain climbers",
       "type": "repetitions",
+      "category": "core",
       "goal": 50,
       "button1value": 10,
       "button2value": 15

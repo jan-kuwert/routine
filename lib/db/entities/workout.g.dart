@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'daily_workout.dart';
+part of 'workout.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
@@ -9,48 +9,54 @@ part of 'daily_workout.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetDailyWorkoutCollection on Isar {
-  IsarCollection<DailyWorkout> get dailyWorkouts => this.collection();
+extension GetWorkoutCollection on Isar {
+  IsarCollection<Workout> get workouts => this.collection();
 }
 
-const DailyWorkoutSchema = CollectionSchema(
-  name: r'DailyWorkout',
-  id: 7763531599552810322,
+const WorkoutSchema = CollectionSchema(
+  name: r'Workout',
+  id: 1535508263686820971,
   properties: {
     r'date': PropertySchema(
       id: 0,
       name: r'date',
       type: IsarType.dateTime,
     ),
-    r'progress': PropertySchema(
+    r'totalProgress': PropertySchema(
       id: 1,
-      name: r'progress',
+      name: r'totalProgress',
       type: IsarType.double,
     )
   },
-  estimateSize: _dailyWorkoutEstimateSize,
-  serialize: _dailyWorkoutSerialize,
-  deserialize: _dailyWorkoutDeserialize,
-  deserializeProp: _dailyWorkoutDeserializeProp,
+  estimateSize: _workoutEstimateSize,
+  serialize: _workoutSerialize,
+  deserialize: _workoutDeserialize,
+  deserializeProp: _workoutDeserializeProp,
   idName: r'id',
   indexes: {},
   links: {
     r'exercises': LinkSchema(
-      id: 4654231363014061654,
+      id: 1523982818738911248,
       name: r'exercises',
       target: r'Exercise',
+      single: false,
+    ),
+    r'workoutEntry': LinkSchema(
+      id: -3918223934341786867,
+      name: r'workoutEntry',
+      target: r'WorkoutEntry',
       single: false,
     )
   },
   embeddedSchemas: {},
-  getId: _dailyWorkoutGetId,
-  getLinks: _dailyWorkoutGetLinks,
-  attach: _dailyWorkoutAttach,
+  getId: _workoutGetId,
+  getLinks: _workoutGetLinks,
+  attach: _workoutAttach,
   version: '3.1.0+1',
 );
 
-int _dailyWorkoutEstimateSize(
-  DailyWorkout object,
+int _workoutEstimateSize(
+  Workout object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -58,30 +64,30 @@ int _dailyWorkoutEstimateSize(
   return bytesCount;
 }
 
-void _dailyWorkoutSerialize(
-  DailyWorkout object,
+void _workoutSerialize(
+  Workout object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.date);
-  writer.writeDouble(offsets[1], object.progress);
+  writer.writeDouble(offsets[1], object.totalProgress);
 }
 
-DailyWorkout _dailyWorkoutDeserialize(
+Workout _workoutDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = DailyWorkout();
+  final object = Workout();
   object.date = reader.readDateTime(offsets[0]);
   object.id = id;
-  object.progress = reader.readDouble(offsets[1]);
+  object.totalProgress = reader.readDouble(offsets[1]);
   return object;
 }
 
-P _dailyWorkoutDeserializeProp<P>(
+P _workoutDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -97,33 +103,32 @@ P _dailyWorkoutDeserializeProp<P>(
   }
 }
 
-Id _dailyWorkoutGetId(DailyWorkout object) {
+Id _workoutGetId(Workout object) {
   return object.id;
 }
 
-List<IsarLinkBase<dynamic>> _dailyWorkoutGetLinks(DailyWorkout object) {
-  return [object.exercises];
+List<IsarLinkBase<dynamic>> _workoutGetLinks(Workout object) {
+  return [object.exercises, object.workoutEntry];
 }
 
-void _dailyWorkoutAttach(
-    IsarCollection<dynamic> col, Id id, DailyWorkout object) {
+void _workoutAttach(IsarCollection<dynamic> col, Id id, Workout object) {
   object.id = id;
   object.exercises
       .attach(col, col.isar.collection<Exercise>(), r'exercises', id);
+  object.workoutEntry
+      .attach(col, col.isar.collection<WorkoutEntry>(), r'workoutEntry', id);
 }
 
-extension DailyWorkoutQueryWhereSort
-    on QueryBuilder<DailyWorkout, DailyWorkout, QWhere> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhere> anyId() {
+extension WorkoutQueryWhereSort on QueryBuilder<Workout, Workout, QWhere> {
+  QueryBuilder<Workout, Workout, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
 }
 
-extension DailyWorkoutQueryWhere
-    on QueryBuilder<DailyWorkout, DailyWorkout, QWhereClause> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhereClause> idEqualTo(Id id) {
+extension WorkoutQueryWhere on QueryBuilder<Workout, Workout, QWhereClause> {
+  QueryBuilder<Workout, Workout, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: id,
@@ -132,8 +137,7 @@ extension DailyWorkoutQueryWhere
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+  QueryBuilder<Workout, Workout, QAfterWhereClause> idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -155,8 +159,7 @@ extension DailyWorkoutQueryWhere
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhereClause> idGreaterThan(
-      Id id,
+  QueryBuilder<Workout, Workout, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -165,7 +168,7 @@ extension DailyWorkoutQueryWhere
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhereClause> idLessThan(Id id,
+  QueryBuilder<Workout, Workout, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -174,7 +177,7 @@ extension DailyWorkoutQueryWhere
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterWhereClause> idBetween(
+  QueryBuilder<Workout, Workout, QAfterWhereClause> idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
@@ -191,9 +194,9 @@ extension DailyWorkoutQueryWhere
   }
 }
 
-extension DailyWorkoutQueryFilter
-    on QueryBuilder<DailyWorkout, DailyWorkout, QFilterCondition> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> dateEqualTo(
+extension WorkoutQueryFilter
+    on QueryBuilder<Workout, Workout, QFilterCondition> {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> dateEqualTo(
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -203,8 +206,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      dateGreaterThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> dateGreaterThan(
     DateTime value, {
     bool include = false,
   }) {
@@ -217,7 +219,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> dateLessThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> dateLessThan(
     DateTime value, {
     bool include = false,
   }) {
@@ -230,7 +232,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> dateBetween(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> dateBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
@@ -247,8 +249,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> idEqualTo(
-      Id value) {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -257,7 +258,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> idGreaterThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> idGreaterThan(
     Id value, {
     bool include = false,
   }) {
@@ -270,7 +271,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> idLessThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> idLessThan(
     Id value, {
     bool include = false,
   }) {
@@ -283,7 +284,7 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> idBetween(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -300,22 +301,21 @@ extension DailyWorkoutQueryFilter
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      progressEqualTo(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> totalProgressEqualTo(
     double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'progress',
+        property: r'totalProgress',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      progressGreaterThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      totalProgressGreaterThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -323,15 +323,14 @@ extension DailyWorkoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'progress',
+        property: r'totalProgress',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      progressLessThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> totalProgressLessThan(
     double value, {
     bool include = false,
     double epsilon = Query.epsilon,
@@ -339,15 +338,14 @@ extension DailyWorkoutQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'progress',
+        property: r'totalProgress',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      progressBetween(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> totalProgressBetween(
     double lower,
     double upper, {
     bool includeLower = true,
@@ -356,7 +354,7 @@ extension DailyWorkoutQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'progress',
+        property: r'totalProgress',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -367,41 +365,38 @@ extension DailyWorkoutQueryFilter
   }
 }
 
-extension DailyWorkoutQueryObject
-    on QueryBuilder<DailyWorkout, DailyWorkout, QFilterCondition> {}
+extension WorkoutQueryObject
+    on QueryBuilder<Workout, Workout, QFilterCondition> {}
 
-extension DailyWorkoutQueryLinks
-    on QueryBuilder<DailyWorkout, DailyWorkout, QFilterCondition> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition> exercises(
+extension WorkoutQueryLinks
+    on QueryBuilder<Workout, Workout, QFilterCondition> {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercises(
       FilterQuery<Exercise> q) {
     return QueryBuilder.apply(this, (query) {
       return query.link(q, r'exercises');
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      exercisesLengthEqualTo(int length) {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercisesLengthEqualTo(
+      int length) {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'exercises', length, true, length, true);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      exercisesIsEmpty() {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercisesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'exercises', 0, true, 0, true);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      exercisesIsNotEmpty() {
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercisesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(r'exercises', 0, false, 999999, true);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      exercisesLengthLessThan(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercisesLengthLessThan(
     int length, {
     bool include = false,
   }) {
@@ -410,7 +405,7 @@ extension DailyWorkoutQueryLinks
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
       exercisesLengthGreaterThan(
     int length, {
     bool include = false,
@@ -420,8 +415,7 @@ extension DailyWorkoutQueryLinks
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterFilterCondition>
-      exercisesLengthBetween(
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> exercisesLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -432,106 +426,165 @@ extension DailyWorkoutQueryLinks
           r'exercises', lower, includeLower, upper, includeUpper);
     });
   }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> workoutEntry(
+      FilterQuery<WorkoutEntry> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'workoutEntry');
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      workoutEntryLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'workoutEntry', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition> workoutEntryIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'workoutEntry', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      workoutEntryIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'workoutEntry', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      workoutEntryLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'workoutEntry', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      workoutEntryLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'workoutEntry', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Workout, Workout, QAfterFilterCondition>
+      workoutEntryLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'workoutEntry', lower, includeLower, upper, includeUpper);
+    });
+  }
 }
 
-extension DailyWorkoutQuerySortBy
-    on QueryBuilder<DailyWorkout, DailyWorkout, QSortBy> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> sortByDate() {
+extension WorkoutQuerySortBy on QueryBuilder<Workout, Workout, QSortBy> {
+  QueryBuilder<Workout, Workout, QAfterSortBy> sortByDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.asc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> sortByDateDesc() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> sortByDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.desc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> sortByProgress() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> sortByTotalProgress() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.asc);
+      return query.addSortBy(r'totalProgress', Sort.asc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> sortByProgressDesc() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> sortByTotalProgressDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.desc);
+      return query.addSortBy(r'totalProgress', Sort.desc);
     });
   }
 }
 
-extension DailyWorkoutQuerySortThenBy
-    on QueryBuilder<DailyWorkout, DailyWorkout, QSortThenBy> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenByDate() {
+extension WorkoutQuerySortThenBy
+    on QueryBuilder<Workout, Workout, QSortThenBy> {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenByDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.asc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenByDateDesc() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenByDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.desc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenById() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenByIdDesc() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenByProgress() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenByTotalProgress() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.asc);
+      return query.addSortBy(r'totalProgress', Sort.asc);
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QAfterSortBy> thenByProgressDesc() {
+  QueryBuilder<Workout, Workout, QAfterSortBy> thenByTotalProgressDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.desc);
+      return query.addSortBy(r'totalProgress', Sort.desc);
     });
   }
 }
 
-extension DailyWorkoutQueryWhereDistinct
-    on QueryBuilder<DailyWorkout, DailyWorkout, QDistinct> {
-  QueryBuilder<DailyWorkout, DailyWorkout, QDistinct> distinctByDate() {
+extension WorkoutQueryWhereDistinct
+    on QueryBuilder<Workout, Workout, QDistinct> {
+  QueryBuilder<Workout, Workout, QDistinct> distinctByDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'date');
     });
   }
 
-  QueryBuilder<DailyWorkout, DailyWorkout, QDistinct> distinctByProgress() {
+  QueryBuilder<Workout, Workout, QDistinct> distinctByTotalProgress() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'progress');
+      return query.addDistinctBy(r'totalProgress');
     });
   }
 }
 
-extension DailyWorkoutQueryProperty
-    on QueryBuilder<DailyWorkout, DailyWorkout, QQueryProperty> {
-  QueryBuilder<DailyWorkout, int, QQueryOperations> idProperty() {
+extension WorkoutQueryProperty
+    on QueryBuilder<Workout, Workout, QQueryProperty> {
+  QueryBuilder<Workout, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<DailyWorkout, DateTime, QQueryOperations> dateProperty() {
+  QueryBuilder<Workout, DateTime, QQueryOperations> dateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'date');
     });
   }
 
-  QueryBuilder<DailyWorkout, double, QQueryOperations> progressProperty() {
+  QueryBuilder<Workout, double, QQueryOperations> totalProgressProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'progress');
+      return query.addPropertyName(r'totalProgress');
     });
   }
 }

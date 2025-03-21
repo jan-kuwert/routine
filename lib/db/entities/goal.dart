@@ -14,5 +14,8 @@ class Goal {
 
   late DateTime end;
 
+  late double progress;
+
   final exercises = IsarLinks<Exercise>();
+
 }

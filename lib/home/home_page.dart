@@ -15,6 +15,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final service = IsarService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +32,10 @@ class _HomePageState extends State<HomePage> {
                   Navigator.restorablePushNamed(
                       context, SettingsView.routeName);
                 },
+              ),
+              IconButton(
+                onPressed: () => service.cleanDb(),
+                icon: const Icon(Icons.delete),
               ),
             ],
           ),
