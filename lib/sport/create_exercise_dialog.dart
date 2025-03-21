@@ -21,53 +21,81 @@ class _CreateExerciseDialogState extends State<CreateExerciseDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
+    return OutlinedButton(
       onPressed: () => showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surfaceBright,
           title: const Text('Add new Exercise'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                decoration: const InputDecoration(
-                    labelText: 'Name', border: OutlineInputBorder()),
-                onChanged: (value) => name = value,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    border: InputBorder.none,
+                  ),
+                  onChanged: (value) => name = value,
+                ),
               ),
               const SizedBox(height: 16),
-              DropdownMenu<ExerciseCategory>(
-                label: const Text('Category'),
-                dropdownMenuEntries: ExerciseCategory.values
-                    .map((category) => DropdownMenuEntry(
-                          value: category,
-                          label: category.toString().split('.').last,
-                        ))
-                    .toList(),
-                controller: _categoryController,
-                onSelected: (value) => setState(() {
-                  _categoryController.text = value.toString().split('.').last;
-                  category = value;
-                }),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: DropdownMenu<ExerciseCategory>(
+                  width: 220,
+                  label: const Text('Category'),
+                  inputDecorationTheme: const InputDecorationTheme(
+                    border: InputBorder.none,
+                  ),
+                  dropdownMenuEntries: ExerciseCategory.values
+                      .map((category) => DropdownMenuEntry(
+                            value: category,
+                            label: category.toString().split('.').last,
+                          ))
+                      .toList(),
+                  controller: _categoryController,
+                  onSelected: (value) => setState(() {
+                    _categoryController.text = value.toString().split('.').last;
+                    category = value;
+                  }),
+                ),
               ),
               const SizedBox(height: 16),
-              DropdownMenu<ExerciseType>(
-                label: const Text('Type'),
-                dropdownMenuEntries: ExerciseType.values
-                    .map((type) => DropdownMenuEntry(
-                          value: type,
-                          label: type.toString().split('.').last,
-                        ))
-                    .toList(),
-                controller: _typeController,
-                onSelected: (value) => setState(() {
-                  _typeController.text = value.toString().split('.').last;
-                  type = value;
-                }),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: DropdownMenu<ExerciseType>(
+                  width: 220,
+                  label: const Text('Type'),
+                  inputDecorationTheme: const InputDecorationTheme(
+                    border: InputBorder.none,
+                  ),
+                  dropdownMenuEntries: ExerciseType.values
+                      .map((type) => DropdownMenuEntry(
+                            value: type,
+                            label: type.toString().split('.').last,
+                          ))
+                      .toList(),
+                  controller: _typeController,
+                  onSelected: (value) => setState(() {
+                    _typeController.text = value.toString().split('.').last;
+                    type = value;
+                  }),
+                ),
               ),
-              Text(name?.toString() ?? ''),
-              Text(_categoryController.text.toString()),
-              Text(_typeController.text.toString()),
-              
             ],
           ),
           actions: <Widget>[

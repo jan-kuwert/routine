@@ -9,6 +9,7 @@ import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/add_sheet.dart';
+import 'package:routine/sport/create_exercise_dialog.dart';
 
 class SportPage extends StatefulWidget {
   final IsarService service;
@@ -99,6 +100,12 @@ class _SportPageState extends State<SportPage> {
                   ],
                 ),
               ),
+            ),
+            SliverToBoxAdapter(
+              child: Center(
+                  child: CreateExerciseDialog(
+                service: widget.service,
+              )),
             ),
           ],
         ),
