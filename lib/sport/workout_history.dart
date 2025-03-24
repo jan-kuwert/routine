@@ -21,39 +21,41 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workout History'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FutureBuilder<List<Workout>>(
-          future: _getWorkoutHistory(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('No past workouts'));
-            } else {
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  final workout = snapshot.data![index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: DailyCard(
-                      title: DateFormat.yMMMMd().format(workout.date),
-                      service: service,
-                      workout: workout,
-                    ),
-                  );
-                },
-              );
-            }
-          },
-        ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            title: const Text('Workout History'),
+          ),
+          FutureBuilder<List<Workout>>(
+            future: _getWorkoutHistory(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+              } else if (snapshot.hasError) {
+                return SliverFillRemaining(child: Center(child: Text('Error: ${snapshot.error}')));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const SliverFillRemaining(child: Center(child: Text('No past workouts')));
+              } else {
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final workout = snapshot.data![index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: DailyCard(
+                          title: DateFormat.yMMMMd().format(workout.date),
+                          service: service,
+                          workout: workout,
+                        ),
+                      );
+                    },
+                    childCount: snapshot.data!.length,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

@@ -6,10 +6,12 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routine/components/daily_card.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/db/entities/exercise.dart';
+import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/create_exercise_dialog.dart';
+import 'package:routine/sport/goal_history.dart';
 import 'package:routine/sport/new_workout_goal.dart';
 import 'package:routine/sport/workout_history.dart';
 
@@ -115,6 +117,17 @@ class _SportPageState extends State<SportPage> {
             SliverAppBar.large(
               title: const Text('Sport'),
               actions: [
+                IconButton(
+                  icon: const Icon(RoutineIconPack.emoji_events),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const GoalHistoryScreen(),
+                      ),
+                    );
+                  },
+                ),
                 IconButton(
                   icon: const Icon(RoutineIconPack.history),
                   onPressed: () {
