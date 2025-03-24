@@ -42,6 +42,12 @@ const GoalSchema = CollectionSchema(
       id: 4,
       name: r'title',
       type: IsarType.string,
+    ),
+    r'type': PropertySchema(
+      id: 5,
+      name: r'type',
+      type: IsarType.byte,
+      enumMap: _GoaltypeEnumValueMap,
     )
   },
   estimateSize: _goalEstimateSize,
@@ -93,6 +99,7 @@ void _goalSerialize(
     object.targets,
   );
   writer.writeString(offsets[4], object.title);
+  writer.writeByte(offsets[5], object.type.index);
 }
 
 Goal _goalDeserialize(
@@ -110,8 +117,10 @@ Goal _goalDeserialize(
           allOffsets,
           ExerciseTarget(),
         ) ??
-        [],
+        const [],
     title: reader.readString(offsets[4]),
+    type: _GoaltypeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+        GoalType.sport,
   );
   object.id = id;
   object.progress = reader.readDouble(offsets[1]);
@@ -138,13 +147,25 @@ P _goalDeserializeProp<P>(
             allOffsets,
             ExerciseTarget(),
           ) ??
-          []) as P;
+          const []) as P;
     case 4:
       return (reader.readString(offset)) as P;
+    case 5:
+      return (_GoaltypeValueEnumMap[reader.readByteOrNull(offset)] ??
+          GoalType.sport) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _GoaltypeEnumValueMap = {
+  'sport': 0,
+  'other': 1,
+};
+const _GoaltypeValueEnumMap = {
+  0: GoalType.sport,
+  1: GoalType.other,
+};
 
 Id _goalGetId(Goal object) {
   return object.id;
@@ -663,6 +684,58 @@ extension GoalQueryFilter on QueryBuilder<Goal, Goal, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> typeEqualTo(GoalType value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'type',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> typeGreaterThan(
+    GoalType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'type',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> typeLessThan(
+    GoalType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'type',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> typeBetween(
+    GoalType lower,
+    GoalType upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'type',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension GoalQueryObject on QueryBuilder<Goal, Goal, QFilterCondition> {
@@ -722,6 +795,18 @@ extension GoalQuerySortBy on QueryBuilder<Goal, Goal, QSortBy> {
   QueryBuilder<Goal, Goal, QAfterSortBy> sortByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.desc);
     });
   }
 }
@@ -786,6 +871,18 @@ extension GoalQuerySortThenBy on QueryBuilder<Goal, Goal, QSortThenBy> {
       return query.addSortBy(r'title', Sort.desc);
     });
   }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.desc);
+    });
+  }
 }
 
 extension GoalQueryWhereDistinct on QueryBuilder<Goal, Goal, QDistinct> {
@@ -811,6 +908,12 @@ extension GoalQueryWhereDistinct on QueryBuilder<Goal, Goal, QDistinct> {
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QDistinct> distinctByType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'type');
     });
   }
 }
@@ -849,6 +952,12 @@ extension GoalQueryProperty on QueryBuilder<Goal, Goal, QQueryProperty> {
   QueryBuilder<Goal, String, QQueryOperations> titleProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'title');
+    });
+  }
+
+  QueryBuilder<Goal, GoalType, QQueryOperations> typeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'type');
     });
   }
 }

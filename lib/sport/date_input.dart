@@ -3,21 +3,29 @@ import 'package:flutter/material.dart';
 class DateInputWidget extends StatefulWidget {
   final DateTime selectedDate;
   final String dateLabel;
+  final Function(DateTime) onDateChanged;
 
-  const DateInputWidget(
-      {super.key, required this.selectedDate, required this.dateLabel});
+  const DateInputWidget({
+    super.key,
+    required this.selectedDate,
+    required this.dateLabel,
+    required this.onDateChanged,
+  });
 
   @override
   State<DateInputWidget> createState() => _DateInputWidgetState();
 }
 
 class _DateInputWidgetState extends State<DateInputWidget> {
-  final TextEditingController _dateController = TextEditingController();
+  late TextEditingController _dateController;
   final FocusNode _dateFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    _dateController = TextEditingController(
+        text:
+            "${widget.selectedDate.day}.${widget.selectedDate.month}.${widget.selectedDate.year}");
     _dateFocusNode.addListener(() {
       if (_dateFocusNode.hasFocus) {
         _selectDate();
@@ -35,15 +43,16 @@ class _DateInputWidgetState extends State<DateInputWidget> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: widget.selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2130),
+      locale: const Locale('en', 'DE'),
     );
     if (picked != null) {
       setState(() {
-        // widget.selectedDate = picked;
-        _dateController.text = "${picked.toLocal()}".split(' ')[0];
+        _dateController.text = "${picked.day}.${picked.month}.${picked.year}";
       });
+      widget.onDateChanged(picked);
     }
     _dateFocusNode.unfocus();
   }
@@ -59,9 +68,12 @@ class _DateInputWidgetState extends State<DateInputWidget> {
           decoration: InputDecoration(
             labelText: widget.dateLabel,
             border: InputBorder.none,
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.calendar_today),
+              onPressed: _selectDate,
+            ),
           ),
         ),
-        // Other widgets...
       ],
     );
   }

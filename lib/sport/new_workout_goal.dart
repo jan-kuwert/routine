@@ -21,10 +21,11 @@ class AddSheet extends StatefulWidget {
 
 class _AddSheetState extends State<AddSheet> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _goalTypeController = TextEditingController();
 
-  final DateTime _workoutDate = DateTime.now();
-  final DateTime _goalStartDate = DateTime.now();
-  final DateTime _goalEndDate = DateTime.now();
+  DateTime _workoutDate = DateTime.now();
+  DateTime _goalStartDate = DateTime.now();
+  DateTime _goalEndDate = DateTime.now();
 
   late String _selectedType = 'Workout';
   final List<String> _selectedExercises = [];
@@ -52,6 +53,11 @@ class _AddSheetState extends State<AddSheet> {
         ..target = double.parse(value));
     }
     return exercises;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -118,34 +124,83 @@ class _AddSheetState extends State<AddSheet> {
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: DateInputWidget(
-                                  selectedDate: _workoutDate,
-                                  dateLabel: 'Date'),
+                                selectedDate: _workoutDate,
+                                dateLabel: 'Date',
+                                onDateChanged: (DateTime date) {
+                                  setState(() {
+                                    _workoutDate = date;
+                                  });
+                                },
+                              ),
                             ),
                           ],
                         ),
                       if (_selectedType == 'Goal')
                         Column(
                           children: [
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHigh,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: TextField(
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  labelText: 'Goal Title',
-                                  border: InputBorder.none,
-                                  floatingLabelStyle: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                            Row(
+                              spacing: 16,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHigh,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: TextField(
+                                      controller: _nameController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Goal Title',
+                                        border: InputBorder.none,
+                                        floatingLabelStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                                Container(
+                                  constraints:
+                                      const BoxConstraints(minWidth: 100),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  alignment: Alignment.center,
+                                  child: DropdownMenu<GoalType>(
+                                    label: const Text('Type'),
+                                    inputDecorationTheme:
+                                        const InputDecorationTheme(
+                                      border: InputBorder.none,
+                                    ),
+                                    dropdownMenuEntries: GoalType.values
+                                        .map((type) => DropdownMenuEntry(
+                                              value: type,
+                                              label: type
+                                                  .toString()
+                                                  .split('.')
+                                                  .last,
+                                            ))
+                                        .toList(),
+                                    controller: _goalTypeController,
+                                    onSelected: (GoalType? type) {
+                                      setState(() {
+                                        _goalTypeController.text =
+                                            type.toString().split('.').last;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 16),
                             Row(
@@ -164,6 +219,11 @@ class _AddSheetState extends State<AddSheet> {
                                     child: DateInputWidget(
                                       selectedDate: _goalStartDate,
                                       dateLabel: 'Start Date',
+                                      onDateChanged: (DateTime date) {
+                                        setState(() {
+                                          _goalStartDate = date;
+                                        });
+                                      },
                                     ),
                                   ),
                                 ),
@@ -178,8 +238,14 @@ class _AddSheetState extends State<AddSheet> {
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                     child: DateInputWidget(
-                                        selectedDate: _goalEndDate,
-                                        dateLabel: 'End Date'),
+                                      selectedDate: _goalEndDate,
+                                      dateLabel: 'End Date',
+                                      onDateChanged: (DateTime date) {
+                                        setState(() {
+                                          _goalEndDate = date;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
                               ],
@@ -189,166 +255,194 @@ class _AddSheetState extends State<AddSheet> {
                       const SizedBox(
                         height: 8.0,
                       ),
-                      const Divider(),
-                      const SizedBox(
-                        height: 8.0,
-                      ),
-                      FutureBuilder<List<Exercise>>(
-                        future: widget.service.getAllExercises(),
-                        builder:
-                            (context, AsyncSnapshot<List<Exercise>> snapshot) {
-                          if (snapshot.hasData) {
-                            return SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  ...snapshot.data!.take(5).map(
-                                        (exercise) => Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 10.0),
-                                          child: FilterChip(
-                                            label: Text(exercise.name),
-                                            selected: _selectedExercises
-                                                .contains(exercise.name),
-                                            onSelected: (bool selected) {
-                                              setState(() {
-                                                if (selected) {
-                                                  _selectedExercises
-                                                      .add(exercise.name);
-                                                } else {
-                                                  _selectedExercises
-                                                      .remove(exercise.name);
-                                                }
-                                              });
-                                            },
-                                            selectedColor: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHighest,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerLow,
-                                          ),
-                                        ),
-                                      ),
-                                  SelectDialog(
-                                    list: snapshot.data!,
-                                    selectedList: _selectedExercises,
-                                    title: 'Select Exercise(s)',
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      if (_selectedExercises.isNotEmpty)
-                        ..._selectedExercises.map((exercise) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        exercise[0].toUpperCase() +
-                                            exercise.substring(1),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHigh,
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: FutureBuilder<Exercise?>(
-                                              future: widget.service
-                                                  .getExerciseByName(exercise),
-                                              builder: (context, snapshot) {
-                                                if (!snapshot.hasData) {
-                                                  return const CircularProgressIndicator();
-                                                }
-                                                final exerciseData =
-                                                    snapshot.data!;
-                                                // Use a controller based on the exercise name
-                                                final controller =
-                                                    TextEditingController();
-                                                // Store in a map in the parent widget if it doesn't exist yet
-                                                if (!_exerciseControllers
-                                                    .containsKey(exercise)) {
-                                                  _exerciseControllers[
-                                                      exercise] = controller;
-                                                }
-                                                return TextField(
-                                                  controller:
-                                                      _exerciseControllers[
-                                                          exercise],
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  inputFormatters: [
-                                                    exerciseData.type ==
-                                                            ExerciseType
-                                                                .repetitions
-                                                        ? FilteringTextInputFormatter
-                                                            .digitsOnly
-                                                        : FilteringTextInputFormatter
-                                                            .allow(RegExp(
-                                                                r'[1-9][0-9]*[,.]?[0-9]*'))
-                                                  ],
-                                                  decoration: InputDecoration(
-                                                    labelText:
-                                                        exerciseData.type ==
-                                                                ExerciseType
-                                                                    .duration
-                                                            ? 'Duration (min)'
-                                                            : 'Reps',
-                                                    border: InputBorder.none,
-                                                    floatingLabelStyle:
-                                                        TextStyle(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                    ),
-                                                  ),
-                                                  onChanged: (value) {
-                                                    // Ensure empty field doesn't remain in the form
-                                                    if (value.isEmpty) {
-                                                      _exerciseControllers[
-                                                              exercise]!
-                                                          .text = "1";
-                                                    }
+                      if (_goalTypeController.text ==
+                              GoalType.sport.toString().split('.').last ||
+                          _selectedType == 'Workout')
+                        Column(
+                          children: [
+                            const Divider(),
+                            const SizedBox(
+                              height: 8.0,
+                            ),
+                            FutureBuilder<List<Exercise>>(
+                              future: widget.service.getAllExercises(),
+                              builder: (context,
+                                  AsyncSnapshot<List<Exercise>> snapshot) {
+                                if (snapshot.hasData) {
+                                  return SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        ...snapshot.data!.take(5).map(
+                                              (exercise) => Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 10.0),
+                                                child: FilterChip(
+                                                  label: Text(exercise.name),
+                                                  selected: _selectedExercises
+                                                      .contains(exercise.name),
+                                                  onSelected: (bool selected) {
+                                                    setState(() {
+                                                      if (selected) {
+                                                        _selectedExercises
+                                                            .add(exercise.name);
+                                                      } else {
+                                                        _selectedExercises
+                                                            .remove(
+                                                                exercise.name);
+                                                      }
+                                                    });
                                                   },
-                                                );
-                                              })),
+                                                  selectedColor: Theme.of(
+                                                          context)
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .surfaceContainerLow,
+                                                ),
+                                              ),
+                                            ),
+                                        SelectDialog(
+                                          list: snapshot.data!,
+                                          selectedList: _selectedExercises,
+                                          title: 'Select Exercise(s)',
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  );
+                                }
+
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            if (_selectedExercises.isNotEmpty)
+                              Column(
+                                children: _selectedExercises
+                                    .map((exercise) => Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 8.0),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(8.0),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerLow,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    exercise[0].toUpperCase() +
+                                                        exercise.substring(1),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Container(
+                                                      padding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 8.0),
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .surfaceContainerHigh,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8.0),
+                                                      ),
+                                                      child: FutureBuilder<
+                                                              Exercise?>(
+                                                          future: widget.service
+                                                              .getExerciseByName(
+                                                                  exercise),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            if (!snapshot
+                                                                .hasData) {
+                                                              return const CircularProgressIndicator();
+                                                            }
+                                                            final exerciseData =
+                                                                snapshot.data!;
+                                                            // Use a controller based on the exercise name
+                                                            final controller =
+                                                                TextEditingController();
+                                                            // Store in a map in the parent widget if it doesn't exist yet
+                                                            if (!_exerciseControllers
+                                                                .containsKey(
+                                                                    exercise)) {
+                                                              _exerciseControllers[
+                                                                      exercise] =
+                                                                  controller;
+                                                            }
+                                                            return TextField(
+                                                              controller:
+                                                                  _exerciseControllers[
+                                                                      exercise],
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              inputFormatters: [
+                                                                exerciseData.type ==
+                                                                        ExerciseType
+                                                                            .repetitions
+                                                                    ? FilteringTextInputFormatter
+                                                                        .digitsOnly
+                                                                    : FilteringTextInputFormatter
+                                                                        .allow(RegExp(
+                                                                            r'[1-9][0-9]*[,.]?[0-9]*'))
+                                                              ],
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                labelText: exerciseData
+                                                                            .type ==
+                                                                        ExerciseType
+                                                                            .duration
+                                                                    ? 'Duration (min)'
+                                                                    : 'Reps',
+                                                                border:
+                                                                    InputBorder
+                                                                        .none,
+                                                                floatingLabelStyle:
+                                                                    TextStyle(
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .colorScheme
+                                                                      .secondary,
+                                                                ),
+                                                              ),
+                                                              onChanged:
+                                                                  (value) {
+                                                                // Ensure empty field doesn't remain in the form
+                                                                if (value
+                                                                    .isEmpty) {
+                                                                  _exerciseControllers[
+                                                                          exercise]!
+                                                                      .text = "1";
+                                                                }
+                                                              },
+                                                            );
+                                                          })),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
                               ),
-                            )),
+                          ],
+                        ),
                       const SizedBox(height: 16),
-                      OutlinedButton(
-                          onPressed: () =>
-                              {debugPrint(_getTargets().toString())},
-                          child: Text('Debug print Data')),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -370,6 +464,7 @@ class _AddSheetState extends State<AddSheet> {
                                   title: _nameController.text,
                                   start: _goalStartDate,
                                   end: _goalEndDate,
+                                  type: GoalType.sport,
                                   targets: _getTargets(),
                                 ),
                               );

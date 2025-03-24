@@ -24,10 +24,18 @@ class Exercise {
 
   late String name;
 
+  late List<int> increments;
+
   @enumerated
   late ExerciseCategory category;
 
   @enumerated
   late ExerciseType type;
 
+  Exercise({
+    required this.name,
+    required this.category,
+    this.type = ExerciseType.repetitions,
+    this.increments = const [],
+  });
 }

@@ -23,13 +23,18 @@ const ExerciseSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _ExercisecategoryEnumValueMap,
     ),
-    r'name': PropertySchema(
+    r'increments': PropertySchema(
       id: 1,
+      name: r'increments',
+      type: IsarType.longList,
+    ),
+    r'name': PropertySchema(
+      id: 2,
       name: r'name',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'type',
       type: IsarType.byte,
       enumMap: _ExercisetypeEnumValueMap,
@@ -55,6 +60,7 @@ int _exerciseEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.increments.length * 8;
   bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
@@ -66,8 +72,9 @@ void _exerciseSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeByte(offsets[0], object.category.index);
-  writer.writeString(offsets[1], object.name);
-  writer.writeByte(offsets[2], object.type.index);
+  writer.writeLongList(offsets[1], object.increments);
+  writer.writeString(offsets[2], object.name);
+  writer.writeByte(offsets[3], object.type.index);
 }
 
 Exercise _exerciseDeserialize(
@@ -76,14 +83,16 @@ Exercise _exerciseDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Exercise();
-  object.category =
-      _ExercisecategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
-          ExerciseCategory.chest;
+  final object = Exercise(
+    category:
+        _ExercisecategoryValueEnumMap[reader.readByteOrNull(offsets[0])] ??
+            ExerciseCategory.chest,
+    increments: reader.readLongList(offsets[1]) ?? const [],
+    name: reader.readString(offsets[2]),
+    type: _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[3])] ??
+        ExerciseType.repetitions,
+  );
   object.id = id;
-  object.name = reader.readString(offsets[1]);
-  object.type = _ExercisetypeValueEnumMap[reader.readByteOrNull(offsets[2])] ??
-      ExerciseType.repetitions;
   return object;
 }
 
@@ -98,8 +107,10 @@ P _exerciseDeserializeProp<P>(
       return (_ExercisecategoryValueEnumMap[reader.readByteOrNull(offset)] ??
           ExerciseCategory.chest) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongList(offset) ?? const []) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (_ExercisetypeValueEnumMap[reader.readByteOrNull(offset)] ??
           ExerciseType.repetitions) as P;
     default:
@@ -327,6 +338,150 @@ extension ExerciseQueryFilter
         upper: upper,
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsElementEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'increments',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'increments',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'increments',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'increments',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
+      incrementsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'increments',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
     });
   }
 
@@ -617,6 +772,12 @@ extension ExerciseQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Exercise, Exercise, QDistinct> distinctByIncrements() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'increments');
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -643,6 +804,12 @@ extension ExerciseQueryProperty
       categoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'category');
+    });
+  }
+
+  QueryBuilder<Exercise, List<int>, QQueryOperations> incrementsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'increments');
     });
   }
 

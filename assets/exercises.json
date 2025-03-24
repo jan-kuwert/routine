@@ -1,42 +1,70 @@
-  [
-    {
-      "name": "pushups",
-      "type": "repetitions",
-      "category": "chest"
-    },
-    {
-      "name": "pullups",
-      "type": "repetitions",
-      "category": "back"
-    },
-    {
-      "name": "squats",
-      "type": "repetitions",
-      "category": "legs"
-    },
-    {
-      "name": "plank",
-      "type": "duration",
-      "category": "core"
-    },
-    {
-      "name": "situps",
-      "type": "repetitions",
-      "category": "core"
-    },
-    {
-      "name": "leg raises",
-      "type": "repetitions",
-      "category": "core"
-    },
-    {
-      "name": "russian twists",
-      "type": "repetitions",
-      "category": "core"
-    },
-    {
-      "name": "mountain climbers",
-      "type": "repetitions",
-      "category": "core"
-    }
-  ]
+[
+  {
+    "name": "pushups",
+    "type": "repetitions",
+    "category": "chest",
+    "increments": [
+      10,
+      15
+    ]
+  },
+  {
+    "name": "pullups",
+    "type": "repetitions",
+    "category": "back",
+    "increments": [
+      5,
+      10
+    ]
+  },
+  {
+    "name": "squats",
+    "type": "repetitions",
+    "category": "legs",
+    "increments": [
+      10,
+      15
+    ]
+  },
+  {
+    "name": "plank",
+    "type": "duration",
+    "category": "core"
+  },
+  {
+    "name": "situps",
+    "type": "repetitions",
+    "category": "core",
+    "increments": [
+      10,
+      15
+    ]
+  },
+  {
+    "name": "leg raises",
+    "type": "repetitions",
+    "category": "core",
+    "increments": [
+      10,
+      15
+    ]
+  },
+  {
+    "name": "russian twists",
+    "type": "repetitions",
+    "category": "core",
+    "increments": [
+      10,
+      15
+    ]
+  },
+  {
+    "name": "mountain climbers",
+    "type": "repetitions",
+    "category": "core",
+    "increments": [
+      10,
+      15
+    ]
+  }
+]

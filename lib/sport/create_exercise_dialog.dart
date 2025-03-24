@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/isar_service.dart';
 
@@ -96,6 +97,44 @@ class _CreateExerciseDialogState extends State<CreateExerciseDialog> {
                   }),
                 ),
               ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Row(
+                  spacing: 16.0,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'Increment 1',
+                          border: InputBorder.none,
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'Increment 2',
+                          border: InputBorder.none,
+                        ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           actions: <Widget>[
@@ -106,10 +145,10 @@ class _CreateExerciseDialogState extends State<CreateExerciseDialog> {
             TextButton(
               onPressed: () => {
                 if (name != null && category != null && type != null)
-                  widget.service.addExercise(Exercise()
-                    ..name = name!
-                    ..category = category as ExerciseCategory
-                    ..type = type as ExerciseType),
+                  widget.service.addExercise(Exercise(
+                      name: name!,
+                      category: category as ExerciseCategory,
+                      type: type as ExerciseType)),
                 Navigator.pop(context, 'Save')
               },
               child: const Text('Save'),

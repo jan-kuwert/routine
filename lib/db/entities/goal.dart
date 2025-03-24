@@ -2,6 +2,11 @@ import 'package:isar/isar.dart';
 
 part 'goal.g.dart';
 
+enum GoalType {
+  sport,
+  other,
+}
+
 @Collection()
 class Goal {
   Id id = Isar.autoIncrement;
@@ -14,13 +19,17 @@ class Goal {
 
   late double progress = 0;
 
+  @enumerated
+  late GoalType type;
+
   late List<ExerciseTarget> targets;
 
   Goal({
     required this.title,
     required this.start,
     required this.end,
-    required this.targets,
+    required this.type,
+    this.targets = const [],
   });
 }
 

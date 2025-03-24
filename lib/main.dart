@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
         useMaterial3: true,
       ),
-      supportedLocales: const <Locale>[Locale('en', 'US'), Locale('en', 'DE')],
+      supportedLocales: const <Locale>[Locale('en', 'DE')],
       home: const MyHomePage(title: 'Home'),
       initialRoute: '/',
       routes: {

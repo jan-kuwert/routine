@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
 
 class ExerciseRow extends StatefulWidget {
-  final String title;
-  final int goal;
-  final int button1Value;
-  final int button2Value;
-  final Function(double) onProgressChange;
+  final String title; // title of the exercise like 'Pushup'
+  final double goal; // the goal of the exercise like '50'reps or '3,0'min
+  final Function(double)
+      onProgressChange; // callback to update the progress in parent
+  final double counter; // the current value of the exercise
+  final int workoutId; // the id of the workout
+  final List<int> increments; // value of increment buttons like [5, 10]
+  final bool active; // whether the exercise is interactive or not
 
   const ExerciseRow({
     super.key,
-    required this.title, // title of the exercise like 'Pushup'
-    required this.goal, // the goal of the exercise like '50' reps or '3:00'
-    required this.button1Value, // value of increment button 1
-    required this.button2Value,
-    required this.onProgressChange, // callback to update the progress in parent
+    required this.title,
+    required this.goal,
+    required this.onProgressChange,
+    required this.counter,
+    required this.workoutId,
+    this.increments = const [],
+    this.active = false,
   });
 
   @override
@@ -23,27 +29,33 @@ class ExerciseRow extends StatefulWidget {
 }
 
 class ExerciseRowState extends State<ExerciseRow> {
+  final service = IsarService();
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
-  int get button1Value => widget.button1Value;
-  int get button2Value => widget.button2Value;
-  int get goal => widget.goal;
+  List<int>? get increments => widget.increments;
+  double get goal => widget.goal;
   String get title => widget.title;
-
-  int counter = 0;
+  double get counter => widget.counter;
+  int get workoutId => widget.workoutId;
+  set counter(double value) => (value);
 
   void _increment(int increment) async {
-    int value = counter + increment;
+    double value = counter + increment;
     _updateCounter(value);
   }
 
-  void _updateCounter(int value) async {
+  void _updateCounter(double value) async {
     setState(() {
       counter = value;
       _controller.text = value.toString();
       widget.onProgressChange(counter / goal > 1.0 ? 1.0 : counter / goal);
+      updateWorkoutCounter(value);
     });
+  }
+
+  Future<void> updateWorkoutCounter(double value) async {
+    service.updateWorkoutCounter(workoutId, title, value);
   }
 
   @override
@@ -95,13 +107,13 @@ class ExerciseRowState extends State<ExerciseRow> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             _updateCounter(
-                                value.isEmpty ? 0 : int.parse(value));
+                                value.isEmpty ? 0 : double.parse(value));
                           },
                         ),
                       ),
                     ),
                     Text(
-                      '/$goal $title',
+                      '/${goal.toInt()} $title',
                       style: const TextStyle(
                         fontSize: 16.0,
                       ),
@@ -115,42 +127,44 @@ class ExerciseRowState extends State<ExerciseRow> {
                   ],
                 ),
               ),
-              OverflowBar(
-                spacing: 4.0,
-                children: [
-                  TextButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.primaryContainer),
-                    ),
-                    onPressed: () {
-                      _increment(button1Value);
-                    },
-                    child: Text('+$button1Value'),
-                  ),
-                  TextButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.primaryContainer),
-                    ),
-                    onPressed: () {
-                      _increment(button2Value);
-                    },
-                    child: Text('+$button2Value'),
-                  ),
-                  if (counter < goal)
-                    IconButton(
-                      icon: const Icon(RoutineIconPack.check),
+              if (increments!.length == 2)
+                OverflowBar(
+                  spacing: 4.0,
+                  children: [
+                    TextButton(
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all<Color>(
                             Theme.of(context).colorScheme.primaryContainer),
                       ),
                       onPressed: () {
-                        _increment(goal - counter);
+                        _increment(increments![0]);
                       },
+                      child: Text('+${increments![0]}'),
                     ),
-                ],
-              ),
+                    TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.primaryContainer),
+                      ),
+                      onPressed: () {
+                        _increment(increments![1]);
+                      },
+                      child: Text('+${increments![1]}'),
+                    ),
+                    if (counter < goal)
+                      IconButton(
+                        icon: const Icon(RoutineIconPack.check),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                              Theme.of(context).colorScheme.primaryContainer),
+                        ),
+                        onPressed: () {
+                          double value = goal - counter;
+                          _increment(value.toInt());
+                        },
+                      ),
+                  ],
+                ),
             ],
           ),
         ),

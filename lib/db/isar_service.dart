@@ -63,9 +63,38 @@ class IsarService {
     return isar.workouts.where().findAll();
   }
 
+  Future<List<Workout>> getWorkoutsAfterDate(DateTime date) async {
+    final isar = await db;
+    return isar.workouts.where().filter().dateGreaterThan(date).findAll();
+  }
+
+  Future<List<Workout>> getWorkoutsBeforeDate(DateTime date) async {
+    final isar = await db;
+    return isar.workouts.where().filter().dateLessThan(date).findAll();
+  }
+
+  Future<void> updateWorkoutCounter(
+      int workoutId, String exerciseName, double value) async {
+    final isar = await db;
+    await isar.writeTxn(() =>
+        isar.workouts.filter().idEqualTo(workoutId).findFirst().then((workout) {
+          if (workout == null) {
+            throw ArgumentError('Workout not found');
+          }
+          final exercise = workout.exercises
+              .firstWhere((exercise) => exercise.exerciseName == exerciseName);
+          exercise.counter = value;
+        }));
+  }
+
   Stream<List<Exercise>> exerciseStream() async* {
     final isar = await db;
     yield* isar.exercises.where().watch(fireImmediately: true);
+  }
+
+  Stream<List<Workout>> workoutStream() async* {
+    final isar = await db;
+    yield* isar.workouts.where().watch(fireImmediately: true);
   }
 
   Future<void> addExerciseEntries(
