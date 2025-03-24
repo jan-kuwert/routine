@@ -6,7 +6,6 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:routine/components/daily_card.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/routine_icon_pack_icons.dart';
@@ -146,7 +145,7 @@ class _SportPageState extends State<SportPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
-                    GoalCard(title: 'Active Goal'),
+                    GoalCard(title: 'Current Goal'),
                     FutureBuilder<List<Workout>>(
                       future: widget.service.getWorkoutsAfterDate(
                           DateTime.now().subtract(const Duration(days: 1))),

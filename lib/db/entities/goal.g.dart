@@ -22,29 +22,34 @@ const GoalSchema = CollectionSchema(
       name: r'end',
       type: IsarType.dateTime,
     ),
-    r'progress': PropertySchema(
+    r'pinned': PropertySchema(
       id: 1,
+      name: r'pinned',
+      type: IsarType.bool,
+    ),
+    r'progress': PropertySchema(
+      id: 2,
       name: r'progress',
       type: IsarType.double,
     ),
     r'start': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'start',
       type: IsarType.dateTime,
     ),
     r'targets': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'targets',
       type: IsarType.objectList,
       target: r'ExerciseTarget',
     ),
     r'title': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'title',
       type: IsarType.string,
     ),
     r'type': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'type',
       type: IsarType.byte,
       enumMap: _GoaltypeEnumValueMap,
@@ -90,16 +95,17 @@ void _goalSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.end);
-  writer.writeDouble(offsets[1], object.progress);
-  writer.writeDateTime(offsets[2], object.start);
+  writer.writeBool(offsets[1], object.pinned);
+  writer.writeDouble(offsets[2], object.progress);
+  writer.writeDateTime(offsets[3], object.start);
   writer.writeObjectList<ExerciseTarget>(
-    offsets[3],
+    offsets[4],
     allOffsets,
     ExerciseTargetSchema.serialize,
     object.targets,
   );
-  writer.writeString(offsets[4], object.title);
-  writer.writeByte(offsets[5], object.type.index);
+  writer.writeString(offsets[5], object.title);
+  writer.writeByte(offsets[6], object.type.index);
 }
 
 Goal _goalDeserialize(
@@ -110,20 +116,21 @@ Goal _goalDeserialize(
 ) {
   final object = Goal(
     end: reader.readDateTime(offsets[0]),
-    start: reader.readDateTime(offsets[2]),
+    start: reader.readDateTime(offsets[3]),
     targets: reader.readObjectList<ExerciseTarget>(
-          offsets[3],
+          offsets[4],
           ExerciseTargetSchema.deserialize,
           allOffsets,
           ExerciseTarget(),
         ) ??
         const [],
-    title: reader.readString(offsets[4]),
-    type: _GoaltypeValueEnumMap[reader.readByteOrNull(offsets[5])] ??
+    title: reader.readString(offsets[5]),
+    type: _GoaltypeValueEnumMap[reader.readByteOrNull(offsets[6])] ??
         GoalType.sport,
   );
   object.id = id;
-  object.progress = reader.readDouble(offsets[1]);
+  object.pinned = reader.readBool(offsets[1]);
+  object.progress = reader.readDouble(offsets[2]);
   return object;
 }
 
@@ -137,10 +144,12 @@ P _goalDeserializeProp<P>(
     case 0:
       return (reader.readDateTime(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 3:
+      return (reader.readDateTime(offset)) as P;
+    case 4:
       return (reader.readObjectList<ExerciseTarget>(
             offset,
             ExerciseTargetSchema.deserialize,
@@ -148,9 +157,9 @@ P _goalDeserializeProp<P>(
             ExerciseTarget(),
           ) ??
           const []) as P;
-    case 4:
-      return (reader.readString(offset)) as P;
     case 5:
+      return (reader.readString(offset)) as P;
+    case 6:
       return (_GoaltypeValueEnumMap[reader.readByteOrNull(offset)] ??
           GoalType.sport) as P;
     default:
@@ -355,6 +364,15 @@ extension GoalQueryFilter on QueryBuilder<Goal, Goal, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> pinnedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'pinned',
+        value: value,
       ));
     });
   }
@@ -762,6 +780,18 @@ extension GoalQuerySortBy on QueryBuilder<Goal, Goal, QSortBy> {
     });
   }
 
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pinned', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByPinnedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pinned', Sort.desc);
+    });
+  }
+
   QueryBuilder<Goal, Goal, QAfterSortBy> sortByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'progress', Sort.asc);
@@ -836,6 +866,18 @@ extension GoalQuerySortThenBy on QueryBuilder<Goal, Goal, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pinned', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByPinnedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'pinned', Sort.desc);
+    });
+  }
+
   QueryBuilder<Goal, Goal, QAfterSortBy> thenByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'progress', Sort.asc);
@@ -892,6 +934,12 @@ extension GoalQueryWhereDistinct on QueryBuilder<Goal, Goal, QDistinct> {
     });
   }
 
+  QueryBuilder<Goal, Goal, QDistinct> distinctByPinned() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pinned');
+    });
+  }
+
   QueryBuilder<Goal, Goal, QDistinct> distinctByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'progress');
@@ -928,6 +976,12 @@ extension GoalQueryProperty on QueryBuilder<Goal, Goal, QQueryProperty> {
   QueryBuilder<Goal, DateTime, QQueryOperations> endProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'end');
+    });
+  }
+
+  QueryBuilder<Goal, bool, QQueryOperations> pinnedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pinned');
     });
   }
 

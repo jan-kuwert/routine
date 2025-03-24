@@ -19,6 +19,8 @@ class Goal {
 
   late double progress = 0;
 
+  late bool pinned = false;
+
   @enumerated
   late GoalType type;
 

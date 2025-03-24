@@ -3,15 +3,22 @@ import 'package:routine/routine_icon_pack_icons.dart';
 
 class GoalCard extends StatefulWidget {
   final String title;
-  late bool pinned;
+  final bool pinned;
 
-  GoalCard({super.key, required this.title, this.pinned = false});
+  const GoalCard({super.key, required this.title, this.pinned = false});
 
   @override
   State<GoalCard> createState() => _GoalCardState();
 }
 
 class _GoalCardState extends State<GoalCard> {
+  String get title => widget.title;
+  bool get pinned => widget.pinned;
+
+  set pinned(bool value) {
+    pinned = value;
+  }
+
   final double progress = 0.33;
 
   @override
@@ -22,14 +29,14 @@ class _GoalCardState extends State<GoalCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.title, style: const TextStyle(fontSize: 18.0)),
+            Text(title, style: const TextStyle(fontSize: 18.0)),
             IconButton(
               icon: Icon(
-                widget.pinned ? RoutineIconPack.keep_off : RoutineIconPack.keep,
+                pinned ? RoutineIconPack.keep_off : RoutineIconPack.keep,
               ),
               onPressed: () {
                 setState(() {
-                  widget.pinned = !(widget.pinned);
+                  pinned = !(pinned);
                 });
               },
             ),
@@ -42,10 +49,12 @@ class _GoalCardState extends State<GoalCard> {
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
-            side: BorderSide(
-              color: Theme.of(context).primaryColor,
-              width: 3.0,
-            ),
+            side: pinned
+                ? BorderSide(
+                    color: Theme.of(context).primaryColor,
+                    width: 3.0,
+                  )
+                : BorderSide.none,
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
