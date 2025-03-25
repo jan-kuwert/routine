@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
 
 class ExerciseRow extends StatefulWidget {
   final String title; // title of the exercise like 'Pushup'
@@ -122,7 +123,8 @@ class ExerciseRowState extends State<ExerciseRow> {
                     if (counter >= goal)
                       const Padding(
                         padding: EdgeInsets.only(left: 8.0),
-                        child: Icon(RoutineIconPack.check, color: Colors.green),
+                        child: ThemedIcon(Symbols.check_rounded,
+                            color: Colors.green),
                       ),
                   ],
                 ),
@@ -153,7 +155,7 @@ class ExerciseRowState extends State<ExerciseRow> {
                     ),
                     if (counter < goal)
                       IconButton(
-                        icon: const Icon(RoutineIconPack.check),
+                        icon: const ThemedIcon(Symbols.check_rounded),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all<Color>(
                               Theme.of(context).colorScheme.primaryContainer),

@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/components/daily_card.dart';
 import 'package:routine/components/goal_card.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
-import 'package:routine/sport/create_exercise_dialog.dart';
 import 'package:routine/sport/goal_history.dart';
 import 'package:routine/sport/new_workout_goal.dart';
 import 'package:routine/sport/workout_history.dart';
@@ -117,7 +117,7 @@ class _SportPageState extends State<SportPage> {
               title: const Text('Sport'),
               actions: [
                 IconButton(
-                  icon: const Icon(RoutineIconPack.emoji_events),
+                  icon: const ThemedIcon(Symbols.emoji_events_rounded),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -128,7 +128,7 @@ class _SportPageState extends State<SportPage> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(RoutineIconPack.history),
+                  icon: const ThemedIcon(Symbols.history),
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -181,12 +181,6 @@ class _SportPageState extends State<SportPage> {
                   ],
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Center(
-                  child: CreateExerciseDialog(
-                service: widget.service,
-              )),
             ),
           ],
         ),

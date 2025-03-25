@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 
 class GoalCard extends StatefulWidget {
   final String title;
@@ -14,7 +15,7 @@ class GoalCard extends StatefulWidget {
 class _GoalCardState extends State<GoalCard> {
   String get title => widget.title;
   bool get pinned => widget.pinned;
-  
+
   set pinned(bool value) {
     pinned = value;
   }
@@ -31,8 +32,8 @@ class _GoalCardState extends State<GoalCard> {
           children: [
             Text(title, style: const TextStyle(fontSize: 18.0)),
             IconButton(
-              icon: Icon(
-                pinned ? RoutineIconPack.keep_off : RoutineIconPack.keep,
+              icon: ThemedIcon(
+                pinned ? Symbols.keep_off_rounded : Symbols.keep_rounded,
               ),
               onPressed: () {
                 setState(() {
@@ -67,8 +68,8 @@ class _GoalCardState extends State<GoalCard> {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(right: 4.0),
-                        child: Icon(
-                          RoutineIconPack.emoji_events,
+                        child: ThemedIcon(
+                          Symbols.emoji_events_rounded,
                           size: 24.0,
                         ),
                       ),
@@ -109,8 +110,11 @@ class _GoalCardState extends State<GoalCard> {
                 ),
                 const Row(
                   children: [
-                    Icon(RoutineIconPack.local_fire_department,
-                        size: 28.0, color: Color(0xFFFF8F0F)),
+                    MaterialSymbolsTheme(
+                      fill: 1,
+                      child: ThemedIcon(Symbols.local_fire_department_rounded,
+                          size: 28.0, color: Color(0xFFFF8F0F)),
+                    ),
                     Text('10 Days Streak!'),
                   ],
                 ),

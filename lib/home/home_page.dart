@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
 
 import '../settings/settings_view.dart';
 
@@ -25,16 +26,12 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Home'),
             actions: [
               IconButton(
-                icon: const Icon(RoutineIconPack.settings),
+                icon: const ThemedIcon(Symbols.settings_rounded),
                 onPressed: () {
                   // Navigate to the settings page using a named route.
                   Navigator.restorablePushNamed(
                       context, SettingsView.routeName);
                 },
-              ),
-              IconButton(
-                onPressed: () => service.cleanDb(),
-                icon: const Icon(Icons.delete),
               ),
             ],
           ),

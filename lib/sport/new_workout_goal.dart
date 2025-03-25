@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/date_input.dart';
 import 'package:routine/sport/select_dialog.dart';
 
@@ -93,7 +94,7 @@ class _AddSheetState extends State<AddSheet> {
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 const SizedBox(width: 4),
-                                const Icon(RoutineIconPack.exercise),
+                                const ThemedIcon(Symbols.emoji_symbols_rounded),
                               ],
                             )
                           else if (_selectedType == 'Goal')
@@ -105,7 +106,7 @@ class _AddSheetState extends State<AddSheet> {
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 const SizedBox(width: 4),
-                                const Icon(RoutineIconPack.emoji_events),
+                                const ThemedIcon(Symbols.emoji_events_rounded),
                               ],
                             )
                         ],
@@ -497,7 +498,7 @@ class _AddSheetState extends State<AddSheet> {
             .withValues(alpha: .9),
       ),
       openButtonBuilder: RotateFloatingActionButtonBuilder(
-        child: const Icon(RoutineIconPack.add),
+        child: const ThemedIcon(Symbols.add_rounded),
         fabSize: ExpandableFabSize.regular,
       ),
       closeButtonBuilder: FloatingActionButtonBuilder(
@@ -524,7 +525,7 @@ class _AddSheetState extends State<AddSheet> {
                 widget.fabKey.currentState!.toggle()
               },
               tooltip: 'Add Exercise',
-              child: const Icon(RoutineIconPack.exercise),
+              child: const ThemedIcon(Symbols.exercise_rounded),
             ),
           ],
         ),
@@ -545,7 +546,7 @@ class _AddSheetState extends State<AddSheet> {
                 tooltip: 'Add Goal',
                 backgroundColor:
                     Theme.of(context).colorScheme.surfaceContainerHigh,
-                child: const Icon(RoutineIconPack.emoji_events),
+                child: const ThemedIcon(Symbols.emoji_events_rounded),
               ),
             ),
           ],

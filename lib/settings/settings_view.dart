@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:routine/db/isar_service.dart';
+import 'package:routine/sport/create_exercise_dialog.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'settings_controller.dart';
 
 /// Displays the various settings that can be customized by the user.
@@ -7,10 +9,10 @@ import 'settings_controller.dart';
 /// When a user changes a setting, the SettingsController is updated and
 /// Widgets that listen to the SettingsController are rebuilt.
 class SettingsView extends StatelessWidget {
-  const SettingsView({super.key, required this.controller});
+  SettingsView({super.key, required this.controller});
 
   static const routeName = '/settings';
-
+  final service = IsarService();
   final SettingsController controller;
 
   @override
@@ -60,6 +62,48 @@ class SettingsView extends StatelessWidget {
               ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Center(
+                child: CreateExerciseDialog(
+              service: service,
+            )),
+          ),
+          SliverToBoxAdapter(
+            child: TextButton.icon(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(
+                    Theme.of(context).colorScheme.error),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+              ),
+              label: const Text('Clear Database'),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Clear Database'),
+                  content: const Text(
+                    'This will PERMANENTLY delete all your data. This action cannot be undone.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // service.cleanDb();
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Database cleared')),
+                        );
+                      },
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              ),
+              icon: const Icon(Symbols.skull),
+            ),
+          )
         ],
       ),
     );

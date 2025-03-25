@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_page.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
@@ -13,7 +14,11 @@ void main() async {
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings(); // Add this line
 
-  runApp(MyApp(settingsController: settingsController));
+  runApp(
+    MaterialSymbolsTheme(
+      child: MyApp(settingsController: settingsController),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -108,35 +113,48 @@ class _MyHomePageState extends State<MyHomePage> {
         indicatorColor: Theme.of(context).colorScheme.primary,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
+        destinations: <Widget>[
           NavigationDestination(
-            icon: Icon(RoutineIconPack.home),
-            selectedIcon:
-                Icon(RoutineIconPack.home_filled, color: Colors.white),
+            icon: ThemedIcon(Symbols.home_rounded),
+            selectedIcon: MaterialSymbolsTheme(
+              fill: 1,
+              child: ThemedIcon(Symbols.home_filled_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary),
+            ),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(RoutineIconPack.exercise),
-            selectedIcon:
-                Icon(RoutineIconPack.exercise_filled, color: Colors.white),
+            icon: ThemedIcon(Symbols.exercise_rounded),
+            selectedIcon: MaterialSymbolsTheme(
+              fill: 1,
+              child: ThemedIcon(Symbols.exercise_rounded, color: Colors.white),
+            ),
             label: 'Sport',
           ),
           NavigationDestination(
-            icon: Icon(RoutineIconPack.done_outline),
-            selectedIcon:
-                Icon(RoutineIconPack.done_outline_filled, color: Colors.white),
+            icon: ThemedIcon(Symbols.assignment_turned_in_rounded),
+            selectedIcon: MaterialSymbolsTheme(
+              fill: 1,
+              child: ThemedIcon(Symbols.assignment_turned_in_rounded,
+                  color: Colors.white),
+            ),
             label: 'Todo',
           ),
           NavigationDestination(
-            icon: Icon(RoutineIconPack.cake),
-            selectedIcon:
-                Icon(RoutineIconPack.cake_filled, color: Colors.white),
+            icon: ThemedIcon(Symbols.cake_rounded),
+            selectedIcon: MaterialSymbolsTheme(
+              fill: 1,
+              child: ThemedIcon(Symbols.cake_rounded, color: Colors.white),
+            ),
             label: 'Birthdays',
           ),
           NavigationDestination(
-            icon: Icon(RoutineIconPack.experiment),
-            selectedIcon:
-                Icon(RoutineIconPack.experiment_filled, color: Colors.white),
+            icon: ThemedIcon(Symbols.experiment_rounded),
+            selectedIcon: MaterialSymbolsTheme(
+              fill: 1,
+              child:
+                  ThemedIcon(Symbols.experiment_rounded, color: Colors.white),
+            ),
             label: 'Lab',
           ),
         ],

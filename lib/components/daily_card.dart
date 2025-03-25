@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/routine_icon_pack_icons.dart';
 import 'package:routine/sport/exercise_row.dart';
 
 class DailyCard extends StatefulWidget {
@@ -72,8 +73,8 @@ class _DailyCardState extends State<DailyCard> {
                 if (workout.exercises.isNotEmpty && totalProgress >= 1)
                   const Padding(
                     padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      RoutineIconPack.done_all,
+                    child: ThemedIcon(
+                      Symbols.done_all,
                       color: Colors.green,
                     ),
                   ),
