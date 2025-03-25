@@ -7,65 +7,53 @@ import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
 import 'package:routine/sport/sport_page.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final settingsController = SettingsController(SettingsService());
+  await settingsController.loadSettings(); // Add this line
+
+  runApp(MyApp(settingsController: settingsController));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  MyApp({super.key, required this.settingsController});
 
   final service = IsarService();
+
+  final SettingsController settingsController;
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Routine',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
-        useMaterial3: true,
-      ),
-      supportedLocales: const <Locale>[Locale('en', 'DE')],
-      home: const MyHomePage(title: 'Home'),
-      initialRoute: '/',
-      routes: {
-        '/home': (context) => HomePage(
-              service: service,
+    return ListenableBuilder(
+        listenable: settingsController,
+        builder: (BuildContext context, Widget? child) {
+          return MaterialApp(
+            title: 'Routine',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
+              useMaterial3: true,
             ),
-        '/settings': (context) =>
-            SettingsView(controller: SettingsController(SettingsService())),
-      },
-    );
+            darkTheme: ThemeData.dark(),
+            themeMode: settingsController.themeMode,
+            supportedLocales: const <Locale>[Locale('en', 'DE')],
+            home: const MyHomePage(title: 'Home'),
+            initialRoute: '/',
+            routes: {
+              '/home': (context) => HomePage(
+                    service: service,
+                  ),
+              '/settings': (context) =>
+                  SettingsView(controller: settingsController),
+            },
+          );
+        });
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
