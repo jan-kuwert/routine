@@ -14,7 +14,7 @@ class GoalCard extends StatefulWidget {
 class _GoalCardState extends State<GoalCard> {
   String get title => widget.title;
   bool get pinned => widget.pinned;
-
+  
   set pinned(bool value) {
     pinned = value;
   }
