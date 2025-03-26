@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:routine/db/entities/exercise.dart';
+import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/firebase/goal.dart';
+import 'package:routine/db/firebase/workout.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -28,6 +30,21 @@ class FirebaseService {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Workout.fromFirestore(doc, null))
+            .toList());
+  }
+
+  // Goals
+  Future<void> addGoal(Goal goal) {
+    return _db.collection('goals').add(goal.toFirestore());
+  }
+
+  Stream<List<Goal>> getGoals() {
+    return _db
+        .collection('goals')
+        .orderBy('targetDate')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Goal.fromFirestore(doc, null))
             .toList());
   }
 }

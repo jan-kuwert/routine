@@ -40,6 +40,7 @@ dependencies:
   path_provider: ^2.1.5
   flutter_expandable_fab: ^2.2.0
   intl: ^0.20.2
+  cloud_firestore: ^5.6.5
 
 dev_dependencies:
   flutter_test:

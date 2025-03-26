@@ -1,20 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum ExerciseType {
+  repetitions,
+  duration,
+}
+
+enum ExerciseCategory {
+  chest,
+  back,
+  arms,
+  legs,
+  core,
+  fullBody,
+  stretch,
+  other
+}
+
 class Exercise {
   final String id;
   final String name;
+  final List<int> increments;
+  final ExerciseCategory category;
   final ExerciseType type;
-  final String? description;
-  final DateTime createdAt;
-  final DateTime updatedAt;
 
   Exercise({
     required this.id,
     required this.name,
-    required this.type,
-    this.description,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.category,
+    this.type = ExerciseType.repetitions,
+    this.increments = const [],
   });
 
   factory Exercise.fromFirestore(
@@ -25,20 +39,21 @@ class Exercise {
     return Exercise(
       id: snapshot.id,
       name: data['name'],
-      type: ExerciseType.values[data['type']],
-      description: data['description'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      category: ExerciseCategory.values.firstWhere(
+          (e) => e.toString() == data['category'],
+          orElse: () => ExerciseCategory.other),
+      type: ExerciseType.values.firstWhere((e) => e.toString() == data['type'],
+          orElse: () => ExerciseType.repetitions),
+      increments: List<int>.from(data['increments'] ?? []),
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
-      'type': type.index,
-      'description': description,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
+      'category': category.toString(),
+      'type': type.toString(),
+      'increments': increments,
     };
   }
 }
