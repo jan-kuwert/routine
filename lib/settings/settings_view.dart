@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/services/auth_service.dart';
+import 'package:routine/settings/account_settings_view.dart';
 import 'package:routine/settings/appearance_settings_view.dart';
 import 'package:routine/settings/database_settings_view.dart';
 
@@ -40,9 +41,7 @@ class SettingsView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DatabaseSettingsView(
-                          controller: controller,
-                        ),
+                        builder: (context) => AccountSettingsView(),
                       ),
                     );
                   },

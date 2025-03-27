@@ -5,6 +5,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_view.dart';
+import 'package:routine/login/email_verification_screen.dart';
 import 'package:routine/login/login_view.dart';
 import 'package:routine/login/signup_view.dart';
 import 'package:routine/settings/settings_controller.dart';
@@ -70,9 +71,17 @@ class MyApp extends StatelessWidget {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
-                      if (snapshot.hasData) {
-                        return const AppView(title: 'Home');
+
+                      final user = snapshot.data;
+
+                      if (user != null) {
+                        // Check if email is verified
+                        if (!user.emailVerified) {
+                          return const EmailVerificationView();
+                        }
+                        return const AppView();
                       }
+
                       return const LoginView();
                     },
                   ),
@@ -83,6 +92,7 @@ class MyApp extends StatelessWidget {
                   SettingsView(controller: settingsController),
               '/login': (context) => const LoginView(),
               '/signup': (context) => const SignupView(),
+              '/email-verification': (context) => const EmailVerificationView(),
             },
           );
         });
@@ -90,8 +100,7 @@ class MyApp extends StatelessWidget {
 }
 
 class AppView extends StatefulWidget {
-  const AppView({super.key, required this.title});
-  final String title;
+  const AppView({super.key});
 
   @override
   State<AppView> createState() => _AppViewState();
