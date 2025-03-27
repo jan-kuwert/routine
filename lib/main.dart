@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
@@ -8,8 +10,16 @@ import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
 import 'package:routine/sport/sport_page.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+    demoProjectId: "demo-routine",
+  );
+  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
 
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings(); // Add this line
