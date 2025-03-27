@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/components/goal_card.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
 
@@ -23,7 +25,16 @@ class _HomeViewState extends State<HomeView> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
-            title: const Text('Home'),
+            title: FutureBuilder<String?>(
+              future:
+                  Future.value(FirebaseAuth.instance.currentUser?.displayName),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text('Loading...');
+                }
+                return Text('Hi, ${snapshot.data ?? 'Welcome back'}');
+              },
+            ),
             actions: [
               IconButton(
                 icon: const ThemedIcon(Symbols.settings_rounded),
@@ -36,8 +47,11 @@ class _HomeViewState extends State<HomeView> {
             ],
           ),
           const SliverToBoxAdapter(
-            child: Center(
-              child: Text('Home Page'),
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: [GoalCard(title: 'Current Goal')],
+              ),
             ),
           ),
         ],

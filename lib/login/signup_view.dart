@@ -1,25 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:routine/login/signup_view.dart';
 import 'package:routine/services/auth_service.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class SignupView extends StatefulWidget {
+  const SignupView({super.key});
+  static const routeName = '/signup';
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<SignupView> createState() => _SignupViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _SignupViewState extends State<SignupView> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -34,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back',
+                      'Create account',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -42,7 +56,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Sign in to continue to Routine',
+                      'Sign up to get started with Routine',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
@@ -52,9 +66,24 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name (optional)',
+                  filled: true,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                // Remove validator since name is now optional
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Email*',
                   filled: true,
                   fillColor:
                       Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -67,15 +96,18 @@ class _LoginViewState extends State<LoginView> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
                   return null;
                 },
               ),
-              // ...rest of your code remains the same
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Password*',
                   filled: true,
                   fillColor:
                       Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -87,14 +119,41 @@ class _LoginViewState extends State<LoginView> {
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return 'Please enter a password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _confirmPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'Confirm Password*',
+                  filled: true,
+                  fillColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
+                onPressed: _isLoading ? null : _handleSignUp,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -116,27 +175,18 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ),
                           const SizedBox(width: 12),
+                          const Text(
+                            'Creating account...',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                         ],
                       )
                     : const Text(
-                        'Login',
+                        'Create Account',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Don't have an account?"),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.restorablePushNamed(
-                          context, SignupView.routeName);
-                    },
-                    child: const Text("Create Account"),
-                  ),
-                ],
               ),
             ],
           ),
@@ -145,24 +195,46 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleSignUp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Set loading state
         setState(() {
           _isLoading = true;
         });
 
-        await _authService.signInWithEmailAndPassword(
+        // Create user with email and password
+        await _authService.createUserWithEmailAndPassword(
           _emailController.text,
           _passwordController.text,
         );
+
+        // Update display name
+        await _authService.updateUserProfile(_nameController.text);
 
         if (mounted) {
           setState(() {
             _isLoading = false;
           });
 
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green[700]),
+                  const SizedBox(width: 8),
+                  const Text('Account created successfully'),
+                ],
+              ),
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+            ),
+          );
+
+          // Navigate to home screen
           Navigator.pushReplacementNamed(context, '/');
         }
       } catch (e) {
@@ -170,7 +242,6 @@ class _LoginViewState extends State<LoginView> {
           setState(() {
             _isLoading = false;
           });
-          // Show error message
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

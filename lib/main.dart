@@ -6,6 +6,7 @@ import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_view.dart';
 import 'package:routine/login/login_view.dart';
+import 'package:routine/login/signup_view.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
@@ -81,6 +82,7 @@ class MyApp extends StatelessWidget {
               '/settings': (context) =>
                   SettingsView(controller: settingsController),
               '/login': (context) => const LoginView(),
+              '/signup': (context) => const SignupView(),
             },
           );
         });
@@ -156,7 +158,8 @@ class _AppViewState extends State<AppView> {
             icon: ThemedIcon(Symbols.exercise_rounded),
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
-              child: ThemedIcon(Symbols.exercise_rounded, color: Theme.of(context).colorScheme.onPrimary),
+              child: ThemedIcon(Symbols.exercise_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Sport',
           ),
@@ -173,7 +176,8 @@ class _AppViewState extends State<AppView> {
             icon: ThemedIcon(Symbols.cake_rounded),
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
-              child: ThemedIcon(Symbols.cake_rounded, color: Theme.of(context).colorScheme.onPrimary),
+              child: ThemedIcon(Symbols.cake_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Birthdays',
           ),
@@ -181,8 +185,8 @@ class _AppViewState extends State<AppView> {
             icon: ThemedIcon(Symbols.experiment_rounded),
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
-              child:
-                  ThemedIcon(Symbols.experiment_rounded, color: Theme.of(context).colorScheme.onPrimary),
+              child: ThemedIcon(Symbols.experiment_rounded,
+                  color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Lab',
           ),

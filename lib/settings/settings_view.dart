@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
+import 'package:routine/services/auth_service.dart';
 import 'package:routine/settings/appearance_settings_view.dart';
 import 'package:routine/settings/database_settings_view.dart';
 
@@ -18,6 +18,7 @@ class SettingsView extends StatelessWidget {
   static const routeName = '/settings';
   final service = IsarService();
   final SettingsController controller;
+  final _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +137,7 @@ class SettingsView extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () async {
-                                await FirebaseAuth.instance.signOut();
+                                await _authService.signOut();
                                 Navigator.pop(context);
                                 Navigator.pushNamedAndRemoveUntil(
                                     context, '/login', (route) => false);
