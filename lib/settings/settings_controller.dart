@@ -25,7 +25,7 @@ class SettingsController with ChangeNotifier {
   /// settings from the service.
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-
+    _colorSchemeSeed = await _settingsService.colorSchemeSeed();
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }
@@ -46,5 +46,19 @@ class SettingsController with ChangeNotifier {
     // Persist the changes to a local database or the internet using the
     // SettingService.
     await _settingsService.updateThemeMode(newThemeMode);
+  }
+
+  late Color _colorSchemeSeed;
+
+  Color get colorSchemeSeed => _colorSchemeSeed;
+
+  Future<void> updateColorSchemeSeed(Color newColorSchemeSeed) async {
+    if (newColorSchemeSeed == _colorSchemeSeed) return;
+
+    _colorSchemeSeed = newColorSchemeSeed;
+
+    notifyListeners();
+
+    await _settingsService.updateColorSchemeSeed(newColorSchemeSeed);
   }
 }

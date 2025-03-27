@@ -14,16 +14,16 @@ import 'package:routine/sport/goal_history.dart';
 import 'package:routine/sport/new_workout_goal.dart';
 import 'package:routine/sport/workout_history.dart';
 
-class SportPage extends StatefulWidget {
+class SportView extends StatefulWidget {
   final IsarService service;
 
-  const SportPage({super.key, required this.service});
+  const SportView({super.key, required this.service});
 
   @override
-  State<SportPage> createState() => _SportPageState();
+  State<SportView> createState() => _SportViewState();
 }
 
-class _SportPageState extends State<SportPage> {
+class _SportViewState extends State<SportView> {
   final GlobalKey<ExpandableFabState> _fabKey = GlobalKey<ExpandableFabState>();
   late Future<List<Workout>> workouts;
   final String jsonPath = 'assets/exercises.json';

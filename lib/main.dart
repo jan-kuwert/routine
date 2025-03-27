@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/isar_service.dart';
-import 'package:routine/home/home_page.dart';
+import 'package:routine/home/home_view.dart';
+import 'package:routine/login/login_view.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
-import 'package:routine/sport/sport_page.dart';
+import 'package:routine/sport/sport_view.dart';
 
 import 'firebase_options.dart';
 
@@ -46,36 +47,55 @@ class MyApp extends StatelessWidget {
         builder: (BuildContext context, Widget? child) {
           return MaterialApp(
             title: 'Routine',
+            themeMode: settingsController.themeMode,
             theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.lime),
+              colorScheme: ColorScheme.fromSeed(
+                  seedColor: settingsController.colorSchemeSeed),
               useMaterial3: true,
             ),
-            darkTheme: ThemeData.dark(),
-            themeMode: settingsController.themeMode,
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: settingsController.colorSchemeSeed,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+            ),
             supportedLocales: const <Locale>[Locale('en', 'DE')],
-            home: const MyHomePage(title: 'Home'),
             initialRoute: '/',
             routes: {
-              '/home': (context) => HomePage(
+              '/': (context) => StreamBuilder<User?>(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasData) {
+                        return const AppView(title: 'Home');
+                      }
+                      return const LoginView();
+                    },
+                  ),
+              '/home': (context) => HomeView(
                     service: service,
                   ),
               '/settings': (context) =>
                   SettingsView(controller: settingsController),
+              '/login': (context) => const LoginView(),
             },
           );
         });
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class AppView extends StatefulWidget {
+  const AppView({super.key, required this.title});
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<AppView> createState() => _AppViewState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _AppViewState extends State<AppView> {
   final service = IsarService();
   int currentPageIndex = 0;
 
@@ -83,9 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
-        /// Home page
-        HomePage(service: service),
-        SportPage(service: service),
+        HomeView(service: service),
+        SportView(service: service),
         const Card(
           shadowColor: Colors.transparent,
           margin: EdgeInsets.all(8.0),
@@ -137,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: ThemedIcon(Symbols.exercise_rounded),
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
-              child: ThemedIcon(Symbols.exercise_rounded, color: Colors.white),
+              child: ThemedIcon(Symbols.exercise_rounded, color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Sport',
           ),
@@ -146,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
               child: ThemedIcon(Symbols.assignment_turned_in_rounded,
-                  color: Colors.white),
+                  color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Todo',
           ),
@@ -154,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: ThemedIcon(Symbols.cake_rounded),
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
-              child: ThemedIcon(Symbols.cake_rounded, color: Colors.white),
+              child: ThemedIcon(Symbols.cake_rounded, color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Birthdays',
           ),
@@ -163,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedIcon: MaterialSymbolsTheme(
               fill: 1,
               child:
-                  ThemedIcon(Symbols.experiment_rounded, color: Colors.white),
+                  ThemedIcon(Symbols.experiment_rounded, color: Theme.of(context).colorScheme.onPrimary),
             ),
             label: 'Lab',
           ),

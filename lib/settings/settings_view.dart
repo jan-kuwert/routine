@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:routine/db/isar_service.dart';
-import 'package:routine/sport/create_exercise_dialog.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
+import 'package:routine/db/isar_service.dart';
+import 'package:routine/settings/appearance_settings_view.dart';
+import 'package:routine/settings/database_settings_view.dart';
+
 import 'settings_controller.dart';
 
 /// Displays the various settings that can be customized by the user.
@@ -25,83 +29,136 @@ class SettingsView extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              // When a user selects a theme from the dropdown list, the
-              // SettingsController is updated, which rebuilds the MaterialApp.
-              child: Container(
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: EdgeInsets.only(left: 8.0),
-                child: DropdownButton<ThemeMode>(
-                  // Read the selected themeMode from the controller
-                  value: controller.themeMode,
-                  onChanged: controller.updateThemeMode,
-                  dropdownColor:
-                      Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(8.0),
-                  padding: EdgeInsets.symmetric(horizontal: 12.0),
-                  underline: Container(), // This removes the underline
-                  items: [
-                    DropdownMenuItem(
-                      value: ThemeMode.system,
-                      child: Text('System Theme'),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: Material(
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DatabaseSettingsView(
+                          controller: controller,
+                        ),
+                      ),
+                    );
+                  },
+                  child: ListTile(
+                    leading: ThemedIcon(Symbols.person_rounded),
+                    title: Text('Account'),
+                    trailing: ThemedIcon(
+                      Symbols.chevron_right_rounded,
                     ),
-                    DropdownMenuItem(
-                      value: ThemeMode.light,
-                      child: Text('Light Theme'),
-                    ),
-                    DropdownMenuItem(
-                      value: ThemeMode.dark,
-                      child: Text('Dark Theme'),
-                    )
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
           SliverToBoxAdapter(
-            child: Center(
-                child: CreateExerciseDialog(
-              service: service,
-            )),
-          ),
-          SliverToBoxAdapter(
-            child: TextButton.icon(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.error),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
-              ),
-              label: const Text('Clear Database'),
-              onPressed: () => showDialog(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Clear Database'),
-                  content: const Text(
-                    'This will PERMANENTLY delete all your data. This action cannot be undone.',
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: Material(
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AppearanceSettingsView(controller: controller),
+                      ),
+                    );
+                  },
+                  child: ListTile(
+                    leading: ThemedIcon(Symbols.palette_rounded),
+                    title: Text('Apperance'),
+                    trailing: ThemedIcon(
+                      Symbols.chevron_right_rounded,
+                    ),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // service.cleanDb();
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Database cleared')),
-                        );
-                      },
-                      child: const Text('Delete'),
-                    ),
-                  ],
                 ),
               ),
-              icon: const Icon(Symbols.skull),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: Material(
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DatabaseSettingsView(
+                          controller: controller,
+                        ),
+                      ),
+                    );
+                  },
+                  child: ListTile(
+                    leading: ThemedIcon(Symbols.database_rounded),
+                    title: Text('Data'),
+                    trailing: ThemedIcon(
+                      Symbols.chevron_right_rounded,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 32.0),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Implement logout functionality
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Logout'),
+                          content:
+                              const Text('Are you sure you want to logout?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await FirebaseAuth.instance.signOut();
+                                Navigator.pop(context);
+                                Navigator.pushNamedAndRemoveUntil(
+                                    context, '/login', (route) => false);
+                              },
+                              child: const Text('Logout'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(Symbols.logout_rounded),
+                    label: const Text('Logout'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.errorContainer,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onErrorContainer,
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         ],
