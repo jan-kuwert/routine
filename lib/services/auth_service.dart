@@ -107,7 +107,7 @@ class AuthService {
 
       await user.reauthenticateWithCredential(credential);
       return true; // If we get here, reauthentication was successful
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       return false;
     } catch (e) {
       throw e.toString();
