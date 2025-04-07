@@ -1,13 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
 import 'package:routine/home/home_view.dart';
 import 'package:routine/login/email_verification_screen.dart';
 import 'package:routine/login/login_view.dart';
 import 'package:routine/login/signup_view.dart';
+import 'package:routine/services/firestore_service.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
@@ -23,6 +24,7 @@ void main() async {
     demoProjectId: "demo-routine",
   );
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
 
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings(); // Add this line
@@ -37,7 +39,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   MyApp({super.key, required this.settingsController});
 
-  final service = IsarService();
+  final firestoreService = FirestoreService();
 
   final SettingsController settingsController;
 
@@ -79,14 +81,14 @@ class MyApp extends StatelessWidget {
                         if (!user.emailVerified) {
                           return const EmailVerificationView();
                         }
-                        return const AppView();
+                        return AppView(firestoreService: firestoreService);
                       }
 
                       return const LoginView();
                     },
                   ),
               '/home': (context) => HomeView(
-                    service: service,
+                    firestoreService: firestoreService,
                   ),
               '/settings': (context) =>
                   SettingsView(controller: settingsController),
@@ -100,22 +102,23 @@ class MyApp extends StatelessWidget {
 }
 
 class AppView extends StatefulWidget {
-  const AppView({super.key});
+  final FirestoreService firestoreService;
+  const AppView({super.key, required this.firestoreService});
 
   @override
   State<AppView> createState() => _AppViewState();
 }
 
 class _AppViewState extends State<AppView> {
-  final service = IsarService();
+  FirestoreService get firestoreService => widget.firestoreService;
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
-        HomeView(service: service),
-        SportView(service: service),
+        HomeView(firestoreService: firestoreService),
+        SportView(firestoreService: firestoreService),
         const Card(
           shadowColor: Colors.transparent,
           margin: EdgeInsets.all(8.0),

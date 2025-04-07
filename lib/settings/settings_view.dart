@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
 import 'package:routine/services/auth_service.dart';
 import 'package:routine/settings/account_settings_view.dart';
 import 'package:routine/settings/appearance_settings_view.dart';
@@ -17,7 +16,6 @@ class SettingsView extends StatelessWidget {
   SettingsView({super.key, required this.controller});
 
   static const routeName = '/settings';
-  final service = IsarService();
   final SettingsController controller;
   final _authService = AuthService();
 

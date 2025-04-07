@@ -2,25 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Workout {
   final String id;
-  final Timestamp date;
+  final Timestamp timestamp;
   final double totalProgress;
   final List<ExerciseEntry> exercises;
 
   Workout({
     required this.id,
-    required this.date,
+    required this.timestamp,
     this.totalProgress = 0,
     required this.exercises,
   });
 
   factory Workout.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data()!;
     return Workout(
       id: snapshot.id,
-      date: data['date'] as Timestamp,
+      timestamp: data['timestamp'] as Timestamp,
       totalProgress: (data['totalProgress'] as num).toDouble(),
       exercises: (data['exercises'] as List<dynamic>?)
               ?.map((e) => ExerciseEntry.fromMap(e as Map<String, dynamic>))
@@ -31,7 +29,7 @@ class Workout {
 
   Map<String, dynamic> toFirestore() {
     return {
-      'date': date,
+      'timestamp': timestamp,
       'totalProgress': totalProgress,
       'exercises': exercises.map((entry) => entry.toMap()).toList(),
     };

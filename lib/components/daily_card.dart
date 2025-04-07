@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/entities/workout.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/firebase/workout.dart';
+import 'package:routine/services/firestore_service.dart';
 import 'package:routine/sport/exercise_row.dart';
 
 class DailyCard extends StatefulWidget {
-  final IsarService service;
+  final FirestoreService firestoreService;
   final String title; // Title of the card
   final Workout workout; // The workout for the day
   final List<Exercise> exerciseList; // List of all exercises
@@ -18,7 +18,7 @@ class DailyCard extends StatefulWidget {
     super.key,
     required this.title,
     required this.workout,
-    required this.service,
+    required this.firestoreService,
     this.active = false,
     this.exerciseList = const [],
   });

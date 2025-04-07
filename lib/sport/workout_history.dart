@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:routine/components/daily_card.dart';
-import 'package:routine/db/entities/workout.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/db/firebase/workout.dart';
+import 'package:routine/services/firestore_service.dart';
 
 class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
@@ -12,10 +13,10 @@ class WorkoutHistoryScreen extends StatefulWidget {
 }
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
-  final service = IsarService();
+  final firestoreService = FirestoreService();
 
   Future<List<Workout>> _getWorkoutHistory() async {
-    return service.getWorkoutsBeforeDate(DateTime.now());
+    return firestoreService.getWorkoutsAfterDate(Timestamp.now());
   }
 
   @override
@@ -30,11 +31,14 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             future: _getWorkoutHistory(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+                return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()));
               } else if (snapshot.hasError) {
-                return SliverFillRemaining(child: Center(child: Text('Error: ${snapshot.error}')));
+                return SliverFillRemaining(
+                    child: Center(child: Text('Error: ${snapshot.error}')));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const SliverFillRemaining(child: Center(child: Text('No past workouts')));
+                return const SliverFillRemaining(
+                    child: Center(child: Text('No past workouts')));
               } else {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
@@ -43,8 +47,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: DailyCard(
-                          title: DateFormat.yMMMMd().format(workout.date),
-                          service: service,
+                          title:
+                              DateFormat.yMMMMd().format(workout.timestamp.toDate()),
+                          firestoreService: firestoreService,
                           workout: workout,
                         ),
                       );

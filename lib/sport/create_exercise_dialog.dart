@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/services/firestore_service.dart';
 
 class CreateExerciseDialog extends StatefulWidget {
-  final IsarService service;
+  final FirestoreService firestoreService;
 
-  const CreateExerciseDialog({super.key, required this.service});
+  const CreateExerciseDialog({super.key, required this.firestoreService});
 
   @override
   State<CreateExerciseDialog> createState() => _CreateExerciseDialogState();
 }
 
 class _CreateExerciseDialogState extends State<CreateExerciseDialog> {
+  FirestoreService get firestoreService => widget.firestoreService;
+
   late String? name = '';
   late ExerciseCategory? category;
   late ExerciseType? type;
@@ -145,7 +147,8 @@ class _CreateExerciseDialogState extends State<CreateExerciseDialog> {
             TextButton(
               onPressed: () => {
                 if (name != null && category != null && type != null)
-                  widget.service.addExercise(Exercise(
+                  firestoreService.addExercise(Exercise(
+                      id: '',
                       name: name!,
                       category: category as ExerciseCategory,
                       type: type as ExerciseType)),

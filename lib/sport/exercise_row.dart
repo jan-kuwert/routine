@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/services/firestore_service.dart';
 
 class ExerciseRow extends StatefulWidget {
   final String title; // title of the exercise like 'Pushup'
@@ -10,7 +10,7 @@ class ExerciseRow extends StatefulWidget {
   final Function(double)
       onProgressChange; // callback to update the progress in parent
   final double counter; // the current value of the exercise
-  final int workoutId; // the id of the workout
+  final String workoutId; // the id of the workout
   final List<int> increments; // value of increment buttons like [5, 10]
   final bool active; // whether the exercise is interactive or not
 
@@ -30,7 +30,7 @@ class ExerciseRow extends StatefulWidget {
 }
 
 class ExerciseRowState extends State<ExerciseRow> {
-  final service = IsarService();
+  final firestoreService = FirestoreService();
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
@@ -38,7 +38,7 @@ class ExerciseRowState extends State<ExerciseRow> {
   double get goal => widget.goal;
   String get title => widget.title;
   double get counter => widget.counter;
-  int get workoutId => widget.workoutId;
+  String get workoutId => widget.workoutId;
   set counter(double value) => (value);
 
   void _increment(int increment) async {
@@ -56,7 +56,7 @@ class ExerciseRowState extends State<ExerciseRow> {
   }
 
   Future<void> updateWorkoutCounter(double value) async {
-    service.updateWorkoutCounter(workoutId, title, value);
+    firestoreService.updateWorkoutCounter(workoutId, title, value);
   }
 
   @override

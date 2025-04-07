@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/services/firestore_service.dart';
 
 import '../settings/settings_view.dart';
 
 class HomeView extends StatefulWidget {
-  final IsarService service;
+  final FirestoreService firestoreService;
 
-  const HomeView({super.key, required this.service});
+  const HomeView({super.key, required this.firestoreService});
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> {
-  final service = IsarService();
+  FirestoreService get firestoreService => widget.firestoreService;
 
   @override
   Widget build(BuildContext context) {

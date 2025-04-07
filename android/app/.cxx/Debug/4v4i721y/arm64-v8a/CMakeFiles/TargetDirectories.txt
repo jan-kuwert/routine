@@ -1,0 +1,2 @@
+/Users/jk/repositories/routine/android/app/.cxx/Debug/4v4i721y/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/jk/repositories/routine/android/app/.cxx/Debug/4v4i721y/arm64-v8a/CMakeFiles/rebuild_cache.dir

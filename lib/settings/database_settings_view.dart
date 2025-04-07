@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/services/firestore_service.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/sport/create_exercise_dialog.dart';
 
@@ -9,7 +9,7 @@ class DatabaseSettingsView extends StatelessWidget {
   DatabaseSettingsView({super.key, required this.controller});
 
   final SettingsController controller;
-  final service = IsarService();
+  final firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class DatabaseSettingsView extends StatelessWidget {
           SliverToBoxAdapter(
             child: Center(
                 child: CreateExerciseDialog(
-              service: service,
+              firestoreService: firestoreService,
             )),
           ),
           SliverToBoxAdapter(

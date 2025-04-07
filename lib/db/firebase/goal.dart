@@ -27,10 +27,7 @@ class Goal {
     this.targets = const [],
   });
 
-  factory Goal.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
+  factory Goal.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data()!;
     return Goal(
       id: snapshot.id,

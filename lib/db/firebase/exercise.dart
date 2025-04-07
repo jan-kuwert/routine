@@ -32,9 +32,7 @@ class Exercise {
   });
 
   factory Exercise.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data()!;
     return Exercise(
       id: snapshot.id,

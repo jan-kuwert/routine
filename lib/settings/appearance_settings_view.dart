@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/isar_service.dart';
 import 'package:routine/settings/color_option.dart';
 import 'package:routine/settings/settings_controller.dart';
 
 class AppearanceSettingsView extends StatelessWidget {
-  AppearanceSettingsView({super.key, required this.controller});
+  const AppearanceSettingsView({super.key, required this.controller});
 
   final SettingsController controller;
-  final service = IsarService();
 
   @override
   Widget build(BuildContext context) {

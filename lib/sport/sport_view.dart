@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
@@ -7,27 +8,39 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/components/daily_card.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/entities/workout.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/firebase/workout.dart';
+import 'package:routine/services/firestore_service.dart';
 import 'package:routine/sport/goal_history.dart';
 import 'package:routine/sport/new_workout_goal.dart';
 import 'package:routine/sport/workout_history.dart';
 
 class SportView extends StatefulWidget {
-  final IsarService service;
+  final FirestoreService firestoreService;
 
-  const SportView({super.key, required this.service});
+  const SportView({super.key, required this.firestoreService});
 
   @override
   State<SportView> createState() => _SportViewState();
 }
 
 class _SportViewState extends State<SportView> {
+  FirestoreService get firestoreService => widget.firestoreService;
+
   final GlobalKey<ExpandableFabState> _fabKey = GlobalKey<ExpandableFabState>();
   late Future<List<Workout>> workouts;
   final String jsonPath = 'assets/exercises.json';
   late List<Exercise> exerciseList = [];
+
+  // Add this to keep track of mounted state for async operations
+  bool _isDisposed = false;
+
+  // Override dispose to set the flag when widget is removed
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   Future<void> _addExercisesFromJson() async {
     try {
@@ -36,7 +49,8 @@ class _SportViewState extends State<SportView> {
       final dynamic decoded = json.decode(jsonString);
       for (var i = 0; i < decoded.length; i++) {
         if (decoded[i] is Map) {
-          widget.service.addExercise(Exercise(
+          firestoreService.addExercise(Exercise(
+            id: '', // Empty ID that will be replaced by Firestore
             name: decoded[i]['name'] as String,
             category: ExerciseCategory.values.firstWhere(
               (category) =>
@@ -70,29 +84,38 @@ class _SportViewState extends State<SportView> {
   }
 
   Future<void> getAllExercises() async {
-    final exercises = await widget.service.getAllExercises();
-    setState(() {
-      exerciseList = exercises;
-    });
+    final exercises = await firestoreService.getAllExercises();
+
+    // Check if widget is still mounted before calling setState
+    if (!_isDisposed && mounted) {
+      setState(() {
+        exerciseList = exercises;
+      });
+    }
   }
 
-  String _getDailyCardTitle(DateTime date) {
+  String _getDailyCardTitle(Timestamp date) {
+    // Convert Timestamp to DateTime for comparison
+    final dateTime = date.toDate();
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
     final yesterday = today.subtract(const Duration(days: 1));
 
-    final compareDate = DateTime(date.year, date.month, date.day);
+    // Create comparable date from the timestamp's DateTime
+    final compareDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
     debugPrint('Compare Date: $compareDate');
-    if (compareDate == today) {
+    if (compareDate.isAtSameMomentAs(today)) {
       return 'Today';
-    } else if (compareDate == tomorrow) {
+    } else if (compareDate.isAtSameMomentAs(tomorrow)) {
       return 'Tomorrow';
-    } else if (compareDate == yesterday) {
+    } else if (compareDate.isAtSameMomentAs(yesterday)) {
       return 'Yesterday';
     }
 
-    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+    return '${dateTime.day.toString().padLeft(2, '0')}.${dateTime.month.toString().padLeft(2, '0')}.${dateTime.year}';
   }
 
   @override
@@ -147,8 +170,9 @@ class _SportViewState extends State<SportView> {
                   children: <Widget>[
                     GoalCard(title: 'Current Goal'),
                     FutureBuilder<List<Workout>>(
-                      future: widget.service.getWorkoutsAfterDate(
-                          DateTime.now().subtract(const Duration(days: 1))),
+                      future: firestoreService.getWorkoutsAfterDate(
+                          Timestamp.fromDate(DateTime.now()
+                              .subtract(const Duration(days: 1)))),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -163,14 +187,15 @@ class _SportViewState extends State<SportView> {
                             children: [
                               ...snapshot.data!.map(
                                 (workout) => DailyCard(
-                                  title: _getDailyCardTitle(workout.date),
-                                  service: widget.service,
+                                  title: _getDailyCardTitle(workout.timestamp),
+                                  firestoreService: firestoreService,
                                   workout: workout,
                                   exerciseList: exerciseList,
-                                  active: (_getDailyCardTitle(workout.date) ==
-                                          "Today")
-                                      ? true
-                                      : false,
+                                  active:
+                                      (_getDailyCardTitle(workout.timestamp) ==
+                                              "Today")
+                                          ? true
+                                          : false,
                                 ),
                               ),
                             ],
@@ -186,7 +211,8 @@ class _SportViewState extends State<SportView> {
         ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: AddSheet(service: widget.service, fabKey: _fabKey),
+      floatingActionButton:
+          AddSheet(firestoreService: firestoreService, fabKey: _fabKey),
     );
   }
 }

@@ -1,26 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
-import 'package:routine/db/entities/exercise.dart';
-import 'package:routine/db/entities/goal.dart';
-import 'package:routine/db/entities/workout.dart';
-import 'package:routine/db/isar_service.dart';
+import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/firebase/goal.dart';
+import 'package:routine/db/firebase/workout.dart';
+import 'package:routine/services/firestore_service.dart';
 import 'package:routine/sport/date_input.dart';
 import 'package:routine/sport/select_dialog.dart';
 
 class AddSheet extends StatefulWidget {
-  final IsarService service;
+  final FirestoreService firestoreService;
   final GlobalKey<ExpandableFabState> fabKey;
 
-  const AddSheet({super.key, required this.service, required this.fabKey});
+  const AddSheet(
+      {super.key, required this.firestoreService, required this.fabKey});
 
   @override
   State<AddSheet> createState() => _AddSheetState();
 }
 
 class _AddSheetState extends State<AddSheet> {
+  FirestoreService get firestoreService => widget.firestoreService;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _goalTypeController = TextEditingController();
 
@@ -36,9 +40,8 @@ class _AddSheetState extends State<AddSheet> {
     final List<ExerciseTarget> targets = [];
     for (var exercise in _selectedExercises) {
       final value = _exerciseControllers[exercise]!.text.replaceAll(',', '.');
-      targets.add(ExerciseTarget()
-        ..exercise = exercise
-        ..target = double.parse(value));
+      targets
+          .add(ExerciseTarget(exercise: exercise, target: double.parse(value)));
     }
     return targets;
   }
@@ -48,10 +51,8 @@ class _AddSheetState extends State<AddSheet> {
     for (var exercise in _selectedExercises) {
       final value = _exerciseControllers[exercise]!.text.replaceAll(',', '.');
 
-      exercises.add(ExerciseEntry()
-        ..exerciseName = exercise
-        ..counter = 0
-        ..target = double.parse(value));
+      exercises.add(ExerciseEntry(
+          exerciseName: exercise, counter: 0, target: double.parse(value)));
     }
     return exercises;
   }
@@ -266,7 +267,7 @@ class _AddSheetState extends State<AddSheet> {
                               height: 8.0,
                             ),
                             FutureBuilder<List<Exercise>>(
-                              future: widget.service.getAllExercises(),
+                              future: firestoreService.getAllExercises(),
                               builder: (context,
                                   AsyncSnapshot<List<Exercise>> snapshot) {
                                 if (snapshot.hasData) {
@@ -350,10 +351,9 @@ class _AddSheetState extends State<AddSheet> {
                                                 Expanded(
                                                   flex: 2,
                                                   child: Container(
-                                                      padding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 8.0),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 8.0),
                                                       decoration: BoxDecoration(
                                                         color: Theme.of(context)
                                                             .colorScheme
@@ -364,7 +364,7 @@ class _AddSheetState extends State<AddSheet> {
                                                       ),
                                                       child: FutureBuilder<
                                                               Exercise?>(
-                                                          future: widget.service
+                                                          future: firestoreService
                                                               .getExerciseByName(
                                                                   exercise),
                                                           builder: (context,
@@ -455,16 +455,18 @@ class _AddSheetState extends State<AddSheet> {
                           ),
                           onPressed: () {
                             if (_selectedType == 'Workout') {
-                              widget.service.addWorkout(Workout(
-                                date: _workoutDate,
+                              firestoreService.addWorkout(Workout(
+                                id: '',
+                                timestamp: Timestamp.fromDate(_workoutDate),
                                 exercises: _getExercises(),
                               ));
                             } else if (_selectedType == 'Goal') {
-                              widget.service.addGoal(
+                              firestoreService.addGoal(
                                 Goal(
+                                  id: '',
                                   title: _nameController.text,
-                                  start: _goalStartDate,
-                                  end: _goalEndDate,
+                                  start: Timestamp.fromDate(_goalStartDate),
+                                  end: Timestamp.fromDate(_goalEndDate),
                                   type: GoalType.sport,
                                   targets: _getTargets(),
                                 ),
