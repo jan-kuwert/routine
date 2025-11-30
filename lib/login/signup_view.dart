@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:routine/custom_icons.dart';
 import 'package:routine/services/auth_service.dart';
 
 class SignupView extends StatefulWidget {
@@ -17,6 +20,8 @@ class _SignupViewState extends State<SignupView> {
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
+  bool _obscureText = true;
+  bool _obscureTextConfirm = true;
 
   @override
   void dispose() {
@@ -57,7 +62,7 @@ class _SignupViewState extends State<SignupView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Create account',
+                                'Create account 👏🏽',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -127,8 +132,23 @@ class _SignupViewState extends State<SignupView> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureText
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .inverseSurface,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: _obscureText,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a password';
@@ -152,8 +172,23 @@ class _SignupViewState extends State<SignupView> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureTextConfirm
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .inverseSurface,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureTextConfirm = !_obscureTextConfirm;
+                                });
+                              },
+                            ),
                           ),
-                          obscureText: true,
+                          obscureText: _obscureTextConfirm,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please confirm your password';
@@ -174,7 +209,7 @@ class _SignupViewState extends State<SignupView> {
                                 Theme.of(context).colorScheme.onPrimary,
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(50),
                             ),
                           ),
                           child: _isLoading
@@ -193,7 +228,7 @@ class _SignupViewState extends State<SignupView> {
                                     ),
                                     const SizedBox(width: 12),
                                     const Text(
-                                      'Creating account...',
+                                      'Signing up...',
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
@@ -201,7 +236,7 @@ class _SignupViewState extends State<SignupView> {
                                   ],
                                 )
                               : const Text(
-                                  'Create Account',
+                                  'Sign up',
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
@@ -226,14 +261,35 @@ class _SignupViewState extends State<SignupView> {
           _isLoading = true;
         });
 
-        // Create user with email and password
-        await _authService.createUserWithEmailAndPassword(
-          _emailController.text,
-          _passwordController.text,
-        );
+        final currentUser = FirebaseAuth.instance.currentUser;
+
+        if (currentUser != null && currentUser.isAnonymous) {
+          // Link anonymous account
+          await _authService.linkWithEmailAndPassword(
+            _emailController.text,
+            _passwordController.text,
+          );
+        } else {
+          // Create new account
+          await _authService.createUserWithEmailAndPassword(
+            _emailController.text,
+            _passwordController.text,
+          );
+        }
 
         // Update display name
         await _authService.updateUserProfile(_nameController.text);
+
+        // Send verification email only if not anonymous (linking usually verifies)
+        // or if we want strict verification even for linked accounts.
+        // Usually linking signs them in.
+        // But createUserWithEmailAndPassword sends verification if configured?
+        // No, we need to call sendEmailVerification usually.
+        // Let's send it for both cases to be safe if it's a new email.
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null && !user.emailVerified) {
+          await user.sendEmailVerification();
+        }
 
         if (mounted) {
           setState(() {
@@ -256,7 +312,7 @@ class _SignupViewState extends State<SignupView> {
             ),
           );
 
-          // Navigate to home screen
+          // Navigate to email verification or home depending on flow
           Navigator.pushNamedAndRemoveUntil(
               context, '/email-verification', (route) => false);
         }
@@ -270,15 +326,15 @@ class _SignupViewState extends State<SignupView> {
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.error_outline,
+                  ThemedIcon(Symbols.error_outline_rounded,
                       color: Theme.of(context).colorScheme.onError),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(e.toString()),
                   ),
                   IconButton(
-                    icon: Icon(
-                      Icons.close,
+                    icon: ThemedIcon(
+                      Symbols.close_rounded,
                       color: Theme.of(context).colorScheme.onError,
                       size: 18,
                     ),

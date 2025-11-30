@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:routine/components/goal_card.dart';
-import 'package:routine/db/firebase/goal.dart';
+import 'package:routine/db/entities/goal.dart';
 import 'package:routine/services/firestore_service.dart';
 
 class GoalHistoryScreen extends StatefulWidget {
@@ -50,7 +50,7 @@ class _GoalHistoryScreenState extends State<GoalHistoryScreen> {
                         padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
                         child: GoalCard(
                           title:
-                              '${DateFormat.MMMMd().format(goal.start.toDate())} - ${DateFormat.yMMMMd().format(goal.end.toDate())}',
+                              '${DateFormat.MMMMd().format(goal.start)} - ${DateFormat.yMMMMd().format(goal.end)}',
                         ),
                       );
                     },

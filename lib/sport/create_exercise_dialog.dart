@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/services/firestore_service.dart';
 
 class CreateExerciseDialog extends StatefulWidget {

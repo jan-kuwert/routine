@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:routine/components/daily_card.dart';
-import 'package:routine/db/firebase/workout.dart';
+import 'package:routine/db/entities/workout.dart';
 import 'package:routine/services/firestore_service.dart';
 
 class WorkoutHistoryScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   final firestoreService = FirestoreService();
 
   Future<List<Workout>> _getWorkoutHistory() async {
-    return firestoreService.getWorkoutsAfterDate(Timestamp.now());
+    return firestoreService.getWorkoutsAfterDate(DateTime.now());
   }
 
   @override
@@ -47,8 +46,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: DailyCard(
-                          title:
-                              DateFormat.yMMMMd().format(workout.timestamp.toDate()),
+                          title: DateFormat.yMMMMd().format(workout.date),
                           firestoreService: firestoreService,
                           workout: workout,
                         ),

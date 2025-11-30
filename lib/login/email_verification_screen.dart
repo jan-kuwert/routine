@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/services/auth_service.dart';
+import 'package:routine/sport/exercise_selection_view.dart';
 
 class EmailVerificationView extends StatefulWidget {
   const EmailVerificationView({super.key});
@@ -15,7 +16,6 @@ class EmailVerificationView extends StatefulWidget {
 
 class _EmailVerificationViewState extends State<EmailVerificationView> {
   final _authService = AuthService();
-  bool _isEmailSent = false;
   bool _isVerified = false;
   bool _isResending = false;
   Timer? _timer;
@@ -36,11 +36,6 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
   Future<void> _sendVerificationEmail() async {
     try {
       await _authService.sendEmailVerification();
-      if (mounted) {
-        setState(() {
-          _isEmailSent = true;
-        });
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,8 +76,11 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
           );
 
           // Delay navigation to give user time to see the success message
-          Future.delayed(const Duration(seconds: 2), () {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          Future.delayed(const Duration(seconds: 1), () {
+            if (mounted) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, ExerciseSelectionView.routeName, (route) => false);
+            }
           });
         }
       }
@@ -201,6 +199,12 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
                     );
                   }
                 },
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 child: const Text('Back to Login'),
               ),
             ],

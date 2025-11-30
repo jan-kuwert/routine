@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:routine/db/firebase/exercise.dart';
+import 'package:routine/db/entities/exercise.dart';
 
 class SelectDialog extends StatefulWidget {
   final List<Exercise> list;

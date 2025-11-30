@@ -4,8 +4,13 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/services/firestore_service.dart';
 
+// Constants for increment calculations
+const double _smallIncrementFactor = 0.25;
+const double _mediumIncrementFactor = 0.5;
+
 class ExerciseRow extends StatefulWidget {
   final String title; // title of the exercise like 'Pushup'
+  final String exerciseName; // exact name for database updates
   final double goal; // the goal of the exercise like '50'reps or '3,0'min
   final Function(double)
       onProgressChange; // callback to update the progress in parent
@@ -13,16 +18,19 @@ class ExerciseRow extends StatefulWidget {
   final String workoutId; // the id of the workout
   final List<int> increments; // value of increment buttons like [5, 10]
   final bool active; // whether the exercise is interactive or not
+  final String unit; // unit of the exercise (e.g. 'min', 'reps')
 
   const ExerciseRow({
     super.key,
     required this.title,
+    required this.exerciseName,
     required this.goal,
     required this.onProgressChange,
     required this.counter,
     required this.workoutId,
     this.increments = const [],
     this.active = false,
+    this.unit = '',
   });
 
   @override
@@ -33,37 +41,53 @@ class ExerciseRowState extends State<ExerciseRow> {
   final firestoreService = FirestoreService();
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  late double _localCounter;
 
   List<int>? get increments => widget.increments;
   double get goal => widget.goal;
   String get title => widget.title;
-  double get counter => widget.counter;
+  String get exerciseName => widget.exerciseName;
   String get workoutId => widget.workoutId;
-  set counter(double value) => (value);
+  String get unit => widget.unit;
 
   void _increment(int increment) async {
-    double value = counter + increment;
+    double value = _localCounter + increment;
     _updateCounter(value);
   }
 
   void _updateCounter(double value) async {
     setState(() {
-      counter = value;
-      _controller.text = value.toString();
-      widget.onProgressChange(counter / goal > 1.0 ? 1.0 : counter / goal);
-      updateWorkoutCounter(value);
+      _localCounter = value;
+      _controller.text = _localCounter.toStringAsFixed(0); // Avoid decimals in text if possible
+      widget.onProgressChange(_localCounter / goal > 1.0 ? 1.0 : _localCounter / goal);
+      updateWorkoutCounter(_localCounter);
     });
   }
 
   Future<void> updateWorkoutCounter(double value) async {
-    firestoreService.updateWorkoutCounter(workoutId, title, value);
+    await firestoreService.updateWorkoutCounter(workoutId, exerciseName, value);
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: counter.toString());
+    _localCounter = widget.counter;
+    // Format initial text to integer string if it's a whole number
+    String initialText = _localCounter % 1 == 0 ? _localCounter.toInt().toString() : _localCounter.toString();
+    _controller = TextEditingController(text: initialText);
     _focusNode = FocusNode();
+  }
+
+  @override
+  void didUpdateWidget(ExerciseRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.counter != oldWidget.counter && widget.counter != _localCounter) {
+       _localCounter = widget.counter;
+       String text = _localCounter % 1 == 0 ? _localCounter.toInt().toString() : _localCounter.toString();
+       if (_controller.text != text) {
+         _controller.text = text;
+       }
+    }
   }
 
   @override
@@ -114,13 +138,13 @@ class ExerciseRowState extends State<ExerciseRow> {
                       ),
                     ),
                     Text(
-                      '/${goal.toInt()} $title',
+                      '/${goal.toInt()}${unit.isNotEmpty ? ' $unit' : ''} $title',
                       style: const TextStyle(
                         fontSize: 16.0,
                       ),
                       softWrap: true,
                     ),
-                    if (counter >= goal)
+                    if (_localCounter >= goal)
                       const Padding(
                         padding: EdgeInsets.only(left: 8.0),
                         child: ThemedIcon(Symbols.check_rounded,
@@ -129,7 +153,7 @@ class ExerciseRowState extends State<ExerciseRow> {
                   ],
                 ),
               ),
-              if (increments!.length == 2)
+              if (unit == 'min')
                 OverflowBar(
                   spacing: 4.0,
                   children: [
@@ -139,21 +163,15 @@ class ExerciseRowState extends State<ExerciseRow> {
                             Theme.of(context).colorScheme.primaryContainer),
                       ),
                       onPressed: () {
-                        _increment(increments![0]);
+                        _updateCounter(_localCounter + (goal * _mediumIncrementFactor));
                       },
-                      child: Text('+${increments![0]}'),
+                      child: Text(
+                          (goal * _mediumIncrementFactor) % 1 == 0
+                              ? '+${(goal * _mediumIncrementFactor).toInt()}'
+                              : '+${goal * _mediumIncrementFactor}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    TextButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(
-                            Theme.of(context).colorScheme.primaryContainer),
-                      ),
-                      onPressed: () {
-                        _increment(increments![1]);
-                      },
-                      child: Text('+${increments![1]}'),
-                    ),
-                    if (counter < goal)
+                    if (_localCounter < goal)
                       IconButton(
                         icon: const ThemedIcon(Symbols.check_rounded),
                         style: ButtonStyle(
@@ -161,7 +179,44 @@ class ExerciseRowState extends State<ExerciseRow> {
                               Theme.of(context).colorScheme.primaryContainer),
                         ),
                         onPressed: () {
-                          double value = goal - counter;
+                          _updateCounter(goal);
+                        },
+                      ),
+                  ],
+                )
+              else
+                OverflowBar(
+                  spacing: 4.0,
+                  children: [
+                    TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.primaryContainer),
+                      ),
+                      onPressed: () {
+                        _increment((goal * _smallIncrementFactor).round());
+                      },
+                      child: Text('+${(goal * _smallIncrementFactor).round()}'),
+                    ),
+                    TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.primaryContainer),
+                      ),
+                      onPressed: () {
+                        _increment((goal * _mediumIncrementFactor).round());
+                      },
+                      child: Text('+${(goal * _mediumIncrementFactor).round()}'),
+                    ),
+                    if (_localCounter < goal)
+                      IconButton(
+                        icon: const ThemedIcon(Symbols.check_rounded),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                              Theme.of(context).colorScheme.primaryContainer),
+                        ),
+                        onPressed: () {
+                          double value = goal - _localCounter;
                           _increment(value.toInt());
                         },
                       ),
@@ -170,9 +225,9 @@ class ExerciseRowState extends State<ExerciseRow> {
             ],
           ),
         ),
-        if (counter < goal)
+        if (_localCounter < goal)
           LinearProgressIndicator(
-            value: counter / goal,
+            value: _localCounter / goal,
             minHeight: 7.0,
             borderRadius: BorderRadius.circular(20.0),
           ),

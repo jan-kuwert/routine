@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
+import 'package:routine/services/firestore_service.dart';
+import 'package:routine/settings/manage_exercises_view.dart';
 import 'package:routine/services/auth_service.dart';
 import 'package:routine/settings/account_settings_view.dart';
 import 'package:routine/settings/appearance_settings_view.dart';
-import 'package:routine/settings/database_settings_view.dart';
 
 import 'settings_controller.dart';
 
@@ -94,15 +95,15 @@ class SettingsView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DatabaseSettingsView(
-                          controller: controller,
+                        builder: (context) => ManageExercisesView(
+                          firestoreService: FirestoreService(),
                         ),
                       ),
                     );
                   },
                   child: ListTile(
-                    leading: ThemedIcon(Symbols.database_rounded),
-                    title: Text('Data'),
+                    leading: ThemedIcon(Symbols.fitness_center_rounded),
+                    title: Text('Manage Exercises'),
                     trailing: ThemedIcon(
                       Symbols.chevron_right_rounded,
                     ),
@@ -135,9 +136,11 @@ class SettingsView extends StatelessWidget {
                             TextButton(
                               onPressed: () async {
                                 await _authService.signOut();
-                                Navigator.pop(context);
-                                Navigator.pushNamedAndRemoveUntil(
-                                    context, '/login', (route) => false);
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context, '/login', (route) => false);
+                                }
                               },
                               child: const Text('Logout'),
                             ),

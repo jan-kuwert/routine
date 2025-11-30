@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
@@ -12,8 +13,10 @@ import 'package:routine/services/firestore_service.dart';
 import 'package:routine/settings/settings_controller.dart';
 import 'package:routine/settings/settings_service.dart';
 import 'package:routine/settings/settings_view.dart';
+import 'package:routine/sport/exercise_selection_view.dart';
 import 'package:routine/sport/sport_view.dart';
 
+import 'package:routine/todo/todo_view.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -21,10 +24,17 @@ void main() async {
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-    demoProjectId: "demo-routine",
   );
-  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  
+  // Only use emulators if you are running them locally
+  if (kDebugMode) {
+    try {
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    } catch (e) {
+      print('Error initializing emulators: $e');
+    }
+  }
 
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings(); // Add this line
@@ -78,12 +88,13 @@ class MyApp extends StatelessWidget {
 
                       if (user != null) {
                         // Check if email is verified
-                        if (!user.emailVerified) {
+                        if (!user.emailVerified && !user.isAnonymous) {
                           return const EmailVerificationView();
                         }
                         return AppView(firestoreService: firestoreService);
                       }
 
+                      // If no user, show LoginView
                       return const LoginView();
                     },
                   ),
@@ -95,6 +106,8 @@ class MyApp extends StatelessWidget {
               '/login': (context) => const LoginView(),
               '/signup': (context) => const SignupView(),
               '/email-verification': (context) => const EmailVerificationView(),
+              ExerciseSelectionView.routeName: (context) =>
+                  const ExerciseSelectionView(),
             },
           );
         });
@@ -117,17 +130,16 @@ class _AppViewState extends State<AppView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
-        HomeView(firestoreService: firestoreService),
-        SportView(firestoreService: firestoreService),
-        const Card(
-          shadowColor: Colors.transparent,
-          margin: EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Text('Todo page'),
-            ),
-          ),
+        HomeView(
+          firestoreService: firestoreService,
+          onNavigateToSport: () {
+            setState(() {
+              currentPageIndex = 1; // Navigate to Sport tab
+            });
+          },
         ),
+        SportView(firestoreService: firestoreService),
+        TodoView(firestoreService: firestoreService),
         const Card(
           shadowColor: Colors.transparent,
           margin: EdgeInsets.all(8.0),

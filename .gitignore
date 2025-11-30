@@ -23,6 +23,9 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
+# VS Code settings with machine-specific paths
+.vscode/settings.json
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -43,3 +46,23 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android CMake/NDK build artifacts
+/android/app/.cxx/
+
+# Generated launcher icons (created by flutter_launcher_icons)
+**/android/app/src/main/res/drawable-*/ic_launcher_foreground.png
+**/android/app/src/main/res/mipmap-*/ic_launcher.png
+**/android/app/src/main/res/mipmap-*/ic_launcher_round.png
+
+# iOS specific
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
