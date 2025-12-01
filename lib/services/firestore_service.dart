@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:routine/db/entities/birthday.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/todo.dart';
@@ -62,8 +66,10 @@ class FirestoreService {
         .collection('exercises')
         .orderBy('category')
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Exercise.fromFirestore(doc)).toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Exercise.fromFirestore(doc)).toList(),
+        );
   }
 
   Future<Exercise?> getExerciseByName(String name) async {
@@ -80,6 +86,31 @@ class FirestoreService {
     return null;
   }
 
+  Future<void> importDefaultExercises() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/exercises.json');
+      final List<dynamic> jsonList = json.decode(jsonString);
+
+      for (var item in jsonList) {
+        final exercise = Exercise(
+          id: '',
+          name: item['name'],
+          type: ExerciseType.values.firstWhere(
+              (e) => e.toString().split('.').last == item['type'],
+              orElse: () => ExerciseType.repetitions),
+          category: ExerciseCategory.values.firstWhere(
+              (e) => e.toString().split('.').last == item['category'],
+              orElse: () => ExerciseCategory.other),
+          increments: List<int>.from(item['increments'] ?? []),
+        );
+        await addExercise(exercise);
+      }
+    } catch (e) {
+      debugPrint('Error importing exercises: $e');
+      rethrow;
+    }
+  }
+
   // ----------------------------------------------------------------
   // Workouts
   // ----------------------------------------------------------------
@@ -90,7 +121,7 @@ class FirestoreService {
 
   Future<void> addWorkout(Workout workout) async {
     final existingWorkout = await getWorkout(workout.date);
-    
+
     if (existingWorkout != null) {
       throw 'A workout for this date already exists. Please edit the existing workout.';
     } else {
@@ -103,11 +134,15 @@ class FirestoreService {
 
   Future<void> updateWorkout(Workout workout) async {
     final existingWorkoutOnDate = await getWorkout(workout.date);
-    if (existingWorkoutOnDate != null && existingWorkoutOnDate.id != workout.id) {
+    if (existingWorkoutOnDate != null &&
+        existingWorkoutOnDate.id != workout.id) {
       throw 'A workout for this date already exists. Please merge manually if needed.';
     }
-    
-    await _userDoc().collection('workouts').doc(workout.id).update(workout.toFirestore());
+
+    await _userDoc()
+        .collection('workouts')
+        .doc(workout.id)
+        .update(workout.toFirestore());
   }
 
   Future<List<Workout>> getAllWorkouts() async {
@@ -120,8 +155,10 @@ class FirestoreService {
         .collection('workouts')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Workout.fromFirestore(doc)).toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Workout.fromFirestore(doc)).toList(),
+        );
   }
 
   Future<Workout?> getWorkout(DateTime date) async {
@@ -132,7 +169,10 @@ class FirestoreService {
 
     final snapshot = await _userDoc()
         .collection('workouts')
-        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where(
+          'timestamp',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+        )
         .where('timestamp', isLessThan: Timestamp.fromDate(endOfDay))
         .limit(1)
         .get();
@@ -149,14 +189,16 @@ class FirestoreService {
         .where('timestamp', isGreaterThan: Timestamp.fromDate(date))
         .orderBy('timestamp', descending: false)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Workout.fromFirestore(doc)).toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Workout.fromFirestore(doc)).toList(),
+        );
   }
 
   Future<void> deleteWorkout(String workoutId) async {
     await _userDoc().collection('workouts').doc(workoutId).delete();
   }
-  
+
   Future<List<Workout>> getWorkoutsAfterDate(DateTime date) async {
     final snapshot = await _userDoc()
         .collection('workouts')
@@ -174,7 +216,10 @@ class FirestoreService {
   }
 
   Future<void> updateWorkoutCounter(
-      String workoutId, String exerciseName, double value) async {
+    String workoutId,
+    String exerciseName,
+    double value,
+  ) async {
     final workoutRef = _userDoc().collection('workouts').doc(workoutId);
     final snapshot = await workoutRef.get();
 
@@ -184,10 +229,12 @@ class FirestoreService {
 
     final workoutData = snapshot.data()!;
     final exercises = List<Map<String, dynamic>>.from(
-        workoutData['exercises'] as List<dynamic>);
+      workoutData['exercises'] as List<dynamic>,
+    );
 
-    final index =
-        exercises.indexWhere((e) => e['exerciseName'] == exerciseName);
+    final index = exercises.indexWhere(
+      (e) => e['exerciseName'] == exerciseName,
+    );
     if (index != -1) {
       exercises[index]['counter'] = value;
       exercises[index]['updated'] = Timestamp.now(); // Update timestamp
@@ -200,9 +247,11 @@ class FirestoreService {
   }
 
   Future<void> addExerciseEntries(
-      Workout workout, List<ExerciseEntry> entries) async {
+    Workout workout,
+    List<ExerciseEntry> entries,
+  ) async {
     final workoutRef = _userDoc().collection('workouts').doc(workout.id);
-    
+
     // We need to use FieldValue.arrayUnion but that only works if we have the exact map.
     // Since we want to append, it's safer to read-modify-write or use arrayUnion with exact object.
     // Simpler:
@@ -211,8 +260,9 @@ class FirestoreService {
       if (!snapshot.exists) return;
 
       final currentExercises = List<Map<String, dynamic>>.from(
-          snapshot.data()!['exercises'] as List<dynamic>);
-      
+        snapshot.data()!['exercises'] as List<dynamic>,
+      );
+
       for (var entry in entries) {
         currentExercises.add(entry.toMap());
       }
@@ -233,7 +283,14 @@ class FirestoreService {
   }
 
   Future<void> updateGoal(Goal goal) async {
-    await _userDoc().collection('goals').doc(goal.id).update(goal.toFirestore());
+    await _userDoc()
+        .collection('goals')
+        .doc(goal.id)
+        .update(goal.toFirestore());
+  }
+
+  Future<void> deleteGoal(String goalId) async {
+    await _userDoc().collection('goals').doc(goalId).delete();
   }
 
   Future<List<Goal>> getAllGoals() async {
@@ -242,6 +299,21 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .get();
     return snapshot.docs.map((doc) => Goal.fromFirestore(doc)).toList();
+  }
+
+  Stream<Goal?> activeGoalStream() {
+    return _userDoc()
+        .collection('goals')
+        .where('end', isGreaterThan: Timestamp.now())
+        .orderBy('end')
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return Goal.fromFirestore(snapshot.docs.first);
+      }
+      return null;
+    });
   }
 
   // ----------------------------------------------------------------
@@ -280,8 +352,10 @@ class FirestoreService {
         .collection('todo_lists')
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => TodoList.fromFirestore(doc)).toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => TodoList.fromFirestore(doc)).toList(),
+        );
   }
 
   // ----------------------------------------------------------------
@@ -306,7 +380,10 @@ class FirestoreService {
     await _userDoc().collection('todos').doc(todoId).delete();
   }
 
-  Stream<List<Todo>> getTodosStream({String? listId, bool filterByList = false}) {
+  Stream<List<Todo>> getTodosStream({
+    String? listId,
+    bool filterByList = false,
+  }) {
     Query query =
         _userDoc().collection('todos').where('isCompleted', isEqualTo: false);
 
@@ -322,11 +399,21 @@ class FirestoreService {
         .orderBy('order')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Todo.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>)).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) => Todo.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>,
+                ),
+              )
+              .toList(),
+        );
   }
 
-  Stream<List<Todo>> getCompletedTodosStream({String? listId, bool filterByList = false}) {
+  Stream<List<Todo>> getCompletedTodosStream({
+    String? listId,
+    bool filterByList = false,
+  }) {
     Query query =
         _userDoc().collection('todos').where('isCompleted', isEqualTo: true);
 
@@ -342,8 +429,15 @@ class FirestoreService {
         .orderBy('completedAt', descending: true)
         .limit(50) // Limit history for performance
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Todo.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>)).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) => Todo.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>,
+                ),
+              )
+              .toList(),
+        );
   }
 
   Future<void> reorderTodos(List<Todo> todos) async {
@@ -356,12 +450,72 @@ class FirestoreService {
   }
 
   // ----------------------------------------------------------------
+  // Birthdays
+  // ----------------------------------------------------------------
+
+  Future<void> saveBirthday(Birthday birthday) async {
+    await _userDoc()
+        .collection('birthdays')
+        .doc(birthday.id)
+        .set(birthday.toFirestore());
+  }
+
+  Stream<List<Birthday>> getBirthdaysStream({bool includeHidden = false}) {
+    Query query = _userDoc().collection('birthdays');
+
+    if (!includeHidden) {
+      query = query.where('isHidden', isEqualTo: false);
+    }
+
+    return query.snapshots().map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) => Birthday.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Stream<List<Birthday>> getHiddenBirthdaysStream() {
+    return _userDoc()
+        .collection('birthdays')
+        .where('isHidden', isEqualTo: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map(
+                (doc) => Birthday.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Future<void> hideBirthday(String id) async {
+    await _userDoc().collection('birthdays').doc(id).update({'isHidden': true});
+  }
+
+  Future<void> unhideBirthday(String id) async {
+    await _userDoc()
+        .collection('birthdays')
+        .doc(id)
+        .update({'isHidden': false});
+  }
+
+  Future<void> deleteBirthday(String id) async {
+    await _userDoc().collection('birthdays').doc(id).delete();
+  }
+
+  // ----------------------------------------------------------------
   // Maintenance
   // ----------------------------------------------------------------
-  
+
   Future<void> cleanDb() async {
     // DANGEROUS: Only for dev/test
-    // Deleting subcollections is not automatic in Firestore. 
+    // Deleting subcollections is not automatic in Firestore.
     // You have to delete documents one by one.
     // Implementation skipped for safety/complexity, usually not needed in production.
   }

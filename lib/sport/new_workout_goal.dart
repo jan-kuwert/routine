@@ -15,12 +15,14 @@ class WorkoutGoalSheet extends StatefulWidget {
   final FirestoreService firestoreService;
   final Workout? workout;
   final Goal? goal;
+  final String? initialType;
 
   const WorkoutGoalSheet({
     super.key,
     required this.firestoreService,
     this.workout,
     this.goal,
+    this.initialType,
   });
 
   @override
@@ -65,7 +67,8 @@ class _WorkoutGoalSheetState extends State<WorkoutGoalSheet> {
             TextEditingController(text: target.target.toString());
       }
     } else {
-      _goalTypeController.text = GoalType.sport.toString().split('.').last;
+      _selectedType = widget.initialType ?? 'Workout';
+      _goalTypeController.text = GoalType.total.toString().split('.').last;
     }
   }
 
@@ -294,9 +297,7 @@ class _WorkoutGoalSheetState extends State<WorkoutGoalSheet> {
               const SizedBox(
                 height: 8.0,
               ),
-              if (_goalTypeController.text ==
-                      GoalType.sport.toString().split('.').last ||
-                  _selectedType == 'Workout')
+              if (true) // Always show exercise picker
                 FutureBuilder<List<Exercise>>(
                   future: firestoreService.getAllExercises(),
                   builder: (context, AsyncSnapshot<List<Exercise>> snapshot) {
@@ -527,7 +528,12 @@ class _WorkoutGoalSheetState extends State<WorkoutGoalSheet> {
                                     title: _nameController.text,
                                     start: _goalStartDate,
                                     end: _goalEndDate,
-                                    type: GoalType.sport,
+                                    type: GoalType.values.firstWhere(
+                                      (e) =>
+                                          e.toString().split('.').last ==
+                                          _goalTypeController.text,
+                                      orElse: () => GoalType.total,
+                                    ),
                                     targets: _getTargets(),
                                   ),
                                 );
@@ -538,7 +544,12 @@ class _WorkoutGoalSheetState extends State<WorkoutGoalSheet> {
                                     title: _nameController.text,
                                     start: _goalStartDate,
                                     end: _goalEndDate,
-                                    type: GoalType.sport,
+                                    type: GoalType.values.firstWhere(
+                                      (e) =>
+                                          e.toString().split('.').last ==
+                                          _goalTypeController.text,
+                                      orElse: () => GoalType.total,
+                                    ),
                                     targets: _getTargets(),
                                   ),
                                 );
@@ -584,7 +595,7 @@ class _AddSheetState extends State<AddSheet> {
     super.initState();
   }
 
-  void _showBottomSheet(BuildContext context) {
+  void _showBottomSheet(BuildContext context, {String? type}) {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -593,6 +604,7 @@ class _AddSheetState extends State<AddSheet> {
       builder: (BuildContext context) {
         return WorkoutGoalSheet(
           firestoreService: firestoreService,
+          initialType: type,
         );
       },
     );
@@ -630,7 +642,7 @@ class _AddSheetState extends State<AddSheet> {
             const SizedBox(width: 10),
             FloatingActionButton(
               onPressed: () => {
-                _showBottomSheet(context),
+                _showBottomSheet(context, type: 'Workout'),
                 widget.fabKey.currentState!.toggle()
               },
               tooltip: 'Add Exercise',
@@ -646,7 +658,7 @@ class _AddSheetState extends State<AddSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: FloatingActionButton.small(
                 onPressed: () => {
-                  _showBottomSheet(context),
+                  _showBottomSheet(context, type: 'Goal'),
                   widget.fabKey.currentState!.toggle()
                 },
                 tooltip: 'Add Goal',

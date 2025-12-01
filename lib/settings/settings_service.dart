@@ -5,6 +5,7 @@ class SettingsService {
   static const String _themeModeKey = 'themeMode';
   static const String _colorSchemeSeedKey = 'colorSchemeSeed';
   static const String _lastVisitedListIdKey = 'lastVisitedListId';
+  static const String _isBirthdayEnabledKey = 'isBirthdayEnabled';
 
   Future<ThemeMode> themeMode() async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,7 +20,8 @@ class SettingsService {
 
   Future<Color> colorSchemeSeed() async {
     final prefs = await SharedPreferences.getInstance();
-    final colorValue = prefs.getInt(_colorSchemeSeedKey) ?? Colors.lime.toARGB32();
+    final colorValue =
+        prefs.getInt(_colorSchemeSeedKey) ?? Colors.lime.toARGB32();
     return Color(colorValue);
   }
 
@@ -40,5 +42,15 @@ class SettingsService {
     } else {
       await prefs.setString(_lastVisitedListIdKey, listId);
     }
+  }
+
+  Future<bool> isBirthdayEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isBirthdayEnabledKey) ?? true;
+  }
+
+  Future<void> updateIsBirthdayEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isBirthdayEnabledKey, enabled);
   }
 }

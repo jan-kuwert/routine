@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -6,6 +5,7 @@ import 'package:routine/components/daily_card.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/entities/exercise.dart';
+import 'package:routine/db/entities/goal.dart';
 import 'package:routine/db/entities/workout.dart';
 import 'package:routine/services/firestore_service.dart';
 import 'package:routine/sport/goal_history.dart';
@@ -131,7 +131,18 @@ class _SportViewState extends State<SportView> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
-                    GoalCard(title: 'Current Goal'),
+                    StreamBuilder<Goal?>(
+                      stream: firestoreService.activeGoalStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return GoalCard(
+                            goal: snapshot.data!,
+                            firestoreService: firestoreService,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                     StreamBuilder<List<Workout>>(
                       stream: firestoreService.currentUserId != null
                           ? firestoreService.workoutsAfterDateStream(
@@ -162,7 +173,7 @@ class _SportViewState extends State<SportView> {
                             children: groupedWorkouts.entries.map((entry) {
                               final dateTitle = entry.key;
                               final groupWorkouts = entry.value;
-                              
+
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

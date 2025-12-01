@@ -36,8 +36,16 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
   Future<void> _sendVerificationEmail() async {
     try {
       await _authService.sendEmailVerification();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email sent'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sending verification email: ${e.toString()}'),

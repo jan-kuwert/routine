@@ -99,13 +99,6 @@ class _TodoViewState extends State<TodoView> {
     }
   }
 
-  String _getTitle(List<TodoList>? lists) {
-    if (_selectedListId == 'all') return 'All Todos';
-    if (_selectedListId == null) return 'My Tasks';
-    final list = lists?.firstWhere((l) => l.id == _selectedListId);
-    return list?.name ?? 'Todo';
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -118,127 +111,206 @@ class _TodoViewState extends State<TodoView> {
           final lists = listSnapshot.data ?? [];
 
           return Scaffold(
-            appBar: AppBar(
-              title: Text(_getTitle(lists)),
-              actions: [
-                IconButton(
-                  icon: const ThemedIcon(Symbols.history),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TodoHistoryScreen(
-                          firestoreService: widget.firestoreService,
-                          listId:
-                              _selectedListId == 'all' ? null : _selectedListId,
-                          filterByList: _selectedListId != 'all',
+            body: GestureDetector(
+              onTap: () {
+                if (_fabKey.currentState?.isOpen == true) {
+                  _fabKey.currentState?.toggle();
+                }
+              },
+              child: CustomScrollView(
+              slivers: [
+                SliverAppBar.large(
+                  title: const Text('Todos'),
+                  actions: [
+                    IconButton(
+                      icon: const ThemedIcon(Symbols.history),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TodoHistoryScreen(
+                              firestoreService: widget.firestoreService,
+                              listId: _selectedListId == 'all'
+                                  ? null
+                                  : _selectedListId,
+                              filterByList: _selectedListId != 'all',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                // Horizontal scrollable list filter
+                if (lists.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: FilterChip(
+                                label: const Text('All Todos'),
+                                selected: _selectedListId == 'all',
+                                onSelected: (selected) {
+                                  if (selected) _selectList('all');
+                                },
+                                selectedColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                labelStyle: TextStyle(
+                                  color: _selectedListId == 'all'
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : null,
+                                  fontWeight: _selectedListId == 'all'
+                                      ? FontWeight.bold
+                                      : null,
+                                ),
+                                side: _selectedListId == 'all'
+                                    ? BorderSide.none
+                                    : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: FilterChip(
+                                label: const Text('My Tasks'),
+                                selected: _selectedListId == null,
+                                onSelected: (selected) {
+                                  if (selected) _selectList(null);
+                                },
+                                selectedColor: Theme.of(context)
+                                    .colorScheme
+                                    .primaryContainer,
+                                labelStyle: TextStyle(
+                                  color: _selectedListId == null
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : null,
+                                  fontWeight: _selectedListId == null
+                                      ? FontWeight.bold
+                                      : null,
+                                ),
+                                side: _selectedListId == null
+                                    ? BorderSide.none
+                                    : null,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                            ...lists.map(
+                              (list) => Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: FilterChip(
+                                  label: Text(list.name),
+                                  selected: _selectedListId == list.id,
+                                  onSelected: (selected) {
+                                    if (selected) _selectList(list.id);
+                                  },
+                                  onDeleted: () => _deleteList(list),
+                                  deleteIcon: const Icon(
+                                    Symbols.close_rounded,
+                                    size: 18,
+                                  ),
+                                  selectedColor: Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                  labelStyle: TextStyle(
+                                    color: _selectedListId == list.id
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onPrimaryContainer
+                                        : null,
+                                    fontWeight: _selectedListId == list.id
+                                        ? FontWeight.bold
+                                        : null,
+                                  ),
+                                  side: _selectedListId == list.id
+                                      ? BorderSide.none
+                                      : null,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                StreamBuilder<List<Todo>>(
+                  stream: widget.firestoreService.getTodosStream(
+                      listId: _selectedListId == 'all' ? null : _selectedListId,
+                      filterByList: _selectedListId != 'all'),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SliverFillRemaining(
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return SliverFillRemaining(
+                        child: Center(
+                          child: Text(
+                            _selectedListId == 'all'
+                                ? 'No todos found'
+                                : 'No todos in this list',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final todos = snapshot.data!;
+
+                    return SliverReorderableList(
+                      itemCount: todos.length,
+                      itemBuilder: (context, index) {
+                        final todo = todos[index];
+                        return KeyedSubtree(
+                          key: ValueKey(todo.id),
+                          child: TodoCard(
+                            todo: todo,
+                            firestoreService: widget.firestoreService,
+                          ),
+                        );
+                      },
+                      onReorder: (oldIndex, newIndex) async {
+                        if (oldIndex < newIndex) {
+                          newIndex -= 1;
+                        }
+                        final Todo item = todos.removeAt(oldIndex);
+                        todos.insert(newIndex, item);
+                        await widget.firestoreService.reorderTodos(todos);
+                      },
                     );
                   },
                 ),
               ],
             ),
-            drawer: Drawer(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  const DrawerHeader(
-                      child: Center(
-                          child:
-                              ThemedIcon(Symbols.checklist_rounded, size: 64))),
-                  ListTile(
-                    leading: const ThemedIcon(Symbols.all_inbox_rounded),
-                    title: const Text('All Todos'),
-                    selected: _selectedListId == 'all',
-                    onTap: () {
-                      _selectList('all');
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const ThemedIcon(Symbols.check_box_rounded),
-                    title: const Text('My Tasks'),
-                    selected: _selectedListId == null,
-                    onTap: () {
-                      _selectList(null);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                    child: Text('Lists', style: TextStyle(color: Colors.grey)),
-                  ),
-                  ...lists.map((list) => ListTile(
-                        leading: const ThemedIcon(Symbols.list_rounded),
-                        title: Text(list.name),
-                        selected: _selectedListId == list.id,
-                        onTap: () {
-                          _selectList(list.id);
-                          Navigator.pop(context);
-                        },
-                        trailing: IconButton(
-                          icon: const ThemedIcon(Symbols.delete_outline_rounded,
-                              size: 20),
-                          onPressed: () => _deleteList(list),
-                        ),
-                      )),
-                  ListTile(
-                    leading: const ThemedIcon(Symbols.add_rounded),
-                    title: const Text('Create new list'),
-                    onTap: _showCreateListDialog,
-                  ),
-                ],
-              ),
-            ),
-            body: StreamBuilder<List<Todo>>(
-              stream: widget.firestoreService.getTodosStream(
-                  listId: _selectedListId == 'all' ? null : _selectedListId,
-                  filterByList: _selectedListId != 'all'),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                      child: Text(
-                          _selectedListId == 'all'
-                              ? 'No todos found'
-                              : 'No todos in this list',
-                          style: Theme.of(context).textTheme.bodyLarge));
-                }
-
-                final todos = snapshot.data!;
-
-                return ReorderableListView.builder(
-                  itemCount: todos.length,
-                  itemBuilder: (context, index) {
-                    final todo = todos[index];
-                    return KeyedSubtree(
-                      key: ValueKey(todo.id),
-                      child: TodoCard(
-                        todo: todo,
-                        firestoreService: widget.firestoreService,
-                      ),
-                    );
-                  },
-                  onReorder: (oldIndex, newIndex) async {
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
-                    final Todo item = todos.removeAt(oldIndex);
-                    todos.insert(newIndex, item);
-                    await widget.firestoreService.reorderTodos(todos);
-                  },
-                );
-              },
             ),
             floatingActionButtonLocation: ExpandableFab.location,
             floatingActionButton: ExpandableFab(
               key: _fabKey,
               type: ExpandableFabType.up,
-              distance: 70,
+              overlayStyle: ExpandableFabOverlayStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHigh
+                    .withValues(alpha: .9),
+              ),
               openButtonBuilder: RotateFloatingActionButtonBuilder(
                 child: const ThemedIcon(Symbols.add_rounded),
                 fabSize: ExpandableFabSize.regular,
@@ -247,29 +319,55 @@ class _TodoViewState extends State<TodoView> {
                 size: 56,
                 builder: (BuildContext context, void Function()? onPressed,
                     Animation<double> progress) {
-                  return IconButton(
-                    onPressed: onPressed,
-                    icon: const ThemedIcon(Symbols.close_rounded, size: 36),
-                  );
+                  return const Text('');
                 },
               ),
+              childrenOffset: const Offset(0, -70),
+              childrenAnimation: ExpandableFabAnimation.none,
+              distance: 70,
               children: [
-                FloatingActionButton.extended(
-                  onPressed: () {
-                    _fabKey.currentState?.toggle();
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      showDragHandle: true,
-                      builder: (context) => AddTodoSheet(
-                        firestoreService: widget.firestoreService,
-                        initialListId:
-                            _selectedListId == 'all' ? null : _selectedListId,
+                Row(
+                  children: [
+                    const Text('Add Todo'),
+                    const SizedBox(width: 10),
+                    FloatingActionButton(
+                      onPressed: () {
+                        _fabKey.currentState?.toggle();
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          showDragHandle: true,
+                          builder: (context) => AddTodoSheet(
+                            firestoreService: widget.firestoreService,
+                            initialListId: _selectedListId == 'all'
+                                ? null
+                                : _selectedListId,
+                          ),
+                        );
+                      },
+                      tooltip: 'Add Todo',
+                      child: const ThemedIcon(Symbols.check_box_rounded),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Text('New List'),
+                    const SizedBox(width: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: FloatingActionButton.small(
+                        onPressed: () {
+                          _fabKey.currentState?.toggle();
+                          _showCreateListDialog();
+                        },
+                        tooltip: 'New List',
+                        backgroundColor:
+                            Theme.of(context).colorScheme.surfaceContainerHigh,
+                        child: const ThemedIcon(Symbols.list_rounded),
                       ),
-                    );
-                  },
-                  label: const Text('Add Todo'),
-                  icon: const ThemedIcon(Symbols.check_box_rounded),
+                    ),
+                  ],
                 ),
               ],
             ),

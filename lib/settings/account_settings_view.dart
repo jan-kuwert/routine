@@ -53,16 +53,19 @@ class _AccountSettingsViewState extends State<AccountSettingsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Settings'),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
+              child: CustomScrollView(
+                slivers: [
+                  const SliverAppBar.large(
+                    title: Text('Account Settings'),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16.0),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
                   // Profile Section
                   const Text(
                     'Profile Information',
@@ -400,6 +403,9 @@ class _AccountSettingsViewState extends State<AccountSettingsView> {
                           ],
                         ],
                       ),
+                    ),
+                  ),
+                      ]),
                     ),
                   ),
                 ],

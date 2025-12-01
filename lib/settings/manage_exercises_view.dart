@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/db/entities/exercise.dart';
 import 'package:routine/services/firestore_service.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class ManageExercisesView extends StatefulWidget {
   final FirestoreService firestoreService;
@@ -78,7 +78,9 @@ class _ManageExercisesViewState extends State<ManageExercisesView> {
                         controller: incrementsController1,
                         decoration: const InputDecoration(labelText: 'Small'),
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -87,7 +89,9 @@ class _ManageExercisesViewState extends State<ManageExercisesView> {
                         controller: incrementsController2,
                         decoration: const InputDecoration(labelText: 'Large'),
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                       ),
                     ),
                   ],
@@ -105,7 +109,7 @@ class _ManageExercisesViewState extends State<ManageExercisesView> {
                 if (nameController.text.isNotEmpty) {
                   final inc1 = int.tryParse(incrementsController1.text) ?? 5;
                   final inc2 = int.tryParse(incrementsController2.text) ?? 10;
-                  
+
                   await _firestoreService.addExercise(Exercise(
                     id: '',
                     name: nameController.text,
@@ -129,76 +133,118 @@ class _ManageExercisesViewState extends State<ManageExercisesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage Exercises'),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExerciseDialog,
         child: const ThemedIcon(Symbols.add_rounded),
       ),
-      body: StreamBuilder<List<Exercise>>(
-        stream: _firestoreService.exerciseStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: CustomScrollView(
+        slivers: [
+          const SliverAppBar.large(
+            title: Text('Manage Exercises'),
+          ),
+          StreamBuilder<List<Exercise>>(
+            stream: _firestoreService.exerciseStream(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SliverToBoxAdapter(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No exercises found'));
-          }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('No exercises found'),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            try {
+                              await _firestoreService.importDefaultExercises();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Default exercises imported')),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error importing: $e')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Symbols.download_rounded),
+                          label: const Text('Import Default Exercises'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
 
-          final exercises = snapshot.data!;
+              final exercises = snapshot.data!;
 
-          return ListView.builder(
-            itemCount: exercises.length,
-            itemBuilder: (context, index) {
-              final exercise = exercises[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  child: Text(exercise.name[0].toUpperCase()),
-                ),
-                title: Text(exercise.name),
-                subtitle: Text('${exercise.category.name} • ${exercise.type.name}'),
-                trailing: IconButton(
-                  icon: const ThemedIcon(Symbols.delete_rounded, color: Colors.red),
-                  onPressed: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Delete Exercise'),
-                        content: Text('Delete ${exercise.name}? This will not affect past workouts.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                          ),
-                        ],
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final exercise = exercises[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        child: Text(exercise.name[0].toUpperCase()),
+                      ),
+                      title: Text(exercise.name),
+                      subtitle: Text(
+                          '${exercise.category.name} • ${exercise.type.name}'),
+                      trailing: IconButton(
+                        icon: const ThemedIcon(Symbols.delete_rounded,
+                            color: Colors.red),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Exercise'),
+                              content: Text(
+                                  'Delete ${exercise.name}? This will not affect past workouts.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true && context.mounted) {
+                            try {
+                              await _firestoreService.deleteExercise(exercise.id);
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e')),
+                                );
+                              }
+                            }
+                          }
+                        },
                       ),
                     );
-
-                    if (confirm == true && context.mounted) {
-                       try {
-                         await _firestoreService.deleteExercise(exercise.id);
-                       } catch (e) {
-                         if (context.mounted) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             SnackBar(content: Text('Error: $e')),
-                           );
-                         }
-                       }
-                    }
                   },
+                  childCount: exercises.length,
                 ),
               );
             },
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 }
-

@@ -26,6 +26,7 @@ class SettingsController with ChangeNotifier {
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
     _colorSchemeSeed = await _settingsService.colorSchemeSeed();
+    _isBirthdayEnabled = await _settingsService.isBirthdayEnabled();
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }
@@ -60,5 +61,18 @@ class SettingsController with ChangeNotifier {
     notifyListeners();
 
     await _settingsService.updateColorSchemeSeed(newColorSchemeSeed);
+  }
+
+  late bool _isBirthdayEnabled;
+  bool get isBirthdayEnabled => _isBirthdayEnabled;
+
+  Future<void> updateIsBirthdayEnabled(bool enabled) async {
+    if (enabled == _isBirthdayEnabled) return;
+
+    _isBirthdayEnabled = enabled;
+
+    notifyListeners();
+
+    await _settingsService.updateIsBirthdayEnabled(enabled);
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:routine/components/goal_card.dart';
 import 'package:routine/db/entities/goal.dart';
 import 'package:routine/services/firestore_service.dart';
@@ -49,8 +48,8 @@ class _GoalHistoryScreenState extends State<GoalHistoryScreen> {
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 8.0),
                         child: GoalCard(
-                          title:
-                              '${DateFormat.MMMMd().format(goal.start)} - ${DateFormat.yMMMMd().format(goal.end)}',
+                          goal: goal,
+                          firestoreService: firestoreService,
                         ),
                       );
                     },

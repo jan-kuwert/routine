@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum GoalType {
-  sport,
-  health,
-  other,
+  total,
+  daily,
 }
 
 class Goal {
@@ -37,7 +36,7 @@ class Goal {
       progress: (data['progress'] as num).toDouble(),
       pinned: data['pinned'] ?? false,
       type: GoalType.values.firstWhere((e) => e.toString() == data['type'],
-          orElse: () => GoalType.other),
+          orElse: () => GoalType.total),
       targets: (data['targets'] as List<dynamic>?)
               ?.map((e) => ExerciseTarget.fromMap(e as Map<String, dynamic>))
               .toList() ??

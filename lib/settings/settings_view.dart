@@ -3,6 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:routine/custom_icons.dart';
 import 'package:routine/services/firestore_service.dart';
 import 'package:routine/settings/manage_exercises_view.dart';
+import 'package:routine/settings/birthday_settings_view.dart';
 import 'package:routine/services/auth_service.dart';
 import 'package:routine/settings/account_settings_view.dart';
 import 'package:routine/settings/appearance_settings_view.dart';
@@ -25,13 +26,13 @@ class SettingsView extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
-            title: const Text('Settings'),
-          ),
+          SliverAppBar.large(title: const Text('Settings')),
           SliverToBoxAdapter(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
               child: Material(
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
@@ -47,9 +48,7 @@ class SettingsView extends StatelessWidget {
                   child: ListTile(
                     leading: ThemedIcon(Symbols.person_rounded),
                     title: Text('Account'),
-                    trailing: ThemedIcon(
-                      Symbols.chevron_right_rounded,
-                    ),
+                    trailing: ThemedIcon(Symbols.chevron_right_rounded),
                   ),
                 ),
               ),
@@ -57,8 +56,10 @@ class SettingsView extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
               child: Material(
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
@@ -67,17 +68,16 @@ class SettingsView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AppearanceSettingsView(controller: controller),
+                        builder:
+                            (context) =>
+                                AppearanceSettingsView(controller: controller),
                       ),
                     );
                   },
                   child: ListTile(
                     leading: ThemedIcon(Symbols.palette_rounded),
                     title: Text('Apperance'),
-                    trailing: ThemedIcon(
-                      Symbols.chevron_right_rounded,
-                    ),
+                    trailing: ThemedIcon(Symbols.chevron_right_rounded),
                   ),
                 ),
               ),
@@ -85,8 +85,10 @@ class SettingsView extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
               child: Material(
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
@@ -95,18 +97,48 @@ class SettingsView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ManageExercisesView(
-                          firestoreService: FirestoreService(),
-                        ),
+                        builder:
+                            (context) => ManageExercisesView(
+                              firestoreService: FirestoreService(),
+                            ),
                       ),
                     );
                   },
                   child: ListTile(
                     leading: ThemedIcon(Symbols.fitness_center_rounded),
                     title: Text('Manage Exercises'),
-                    trailing: ThemedIcon(
-                      Symbols.chevron_right_rounded,
-                    ),
+                    trailing: ThemedIcon(Symbols.chevron_right_rounded),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 4.0,
+              ),
+              child: Material(
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => BirthdaySettingsView(
+                              firestoreService: FirestoreService(),
+                              controller: controller,
+                            ),
+                      ),
+                    );
+                  },
+                  child: ListTile(
+                    leading: ThemedIcon(Symbols.cake_rounded),
+                    title: Text('Birthdays'),
+                    trailing: ThemedIcon(Symbols.chevron_right_rounded),
                   ),
                 ),
               ),
@@ -124,28 +156,33 @@ class SettingsView extends StatelessWidget {
                       // Implement logout functionality
                       showDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Logout'),
-                          content:
-                              const Text('Are you sure you want to logout?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
+                        builder:
+                            (context) => AlertDialog(
+                              title: const Text('Logout'),
+                              content: const Text(
+                                'Are you sure you want to logout?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    await _authService.signOut();
+                                    if (context.mounted) {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamedAndRemoveUntil(
+                                        context,
+                                        '/login',
+                                        (route) => false,
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Logout'),
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () async {
-                                await _authService.signOut();
-                                if (context.mounted) {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context, '/login', (route) => false);
-                                }
-                              },
-                              child: const Text('Logout'),
-                            ),
-                          ],
-                        ),
                       );
                     },
                     icon: const Icon(Symbols.logout_rounded),
@@ -161,7 +198,7 @@ class SettingsView extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

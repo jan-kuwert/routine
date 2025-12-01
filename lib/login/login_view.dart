@@ -97,6 +97,7 @@ class _LoginViewState extends State<LoginView> {
                               ),
                               TextFormField(
                                 controller: _emailController,
+                                textInputAction: TextInputAction.next,
                                 decoration: InputDecoration(
                                   labelText: 'Email',
                                   filled: true,
@@ -119,6 +120,8 @@ class _LoginViewState extends State<LoginView> {
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _passwordController,
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _handleLogin(),
                                 obscureText: _obscureText,
                                 decoration: InputDecoration(
                                   labelText: 'Password',
@@ -242,6 +245,7 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _handleLogin() async {
+    if (_isLoading) return;
     if (_formKey.currentState!.validate()) {
       try {
         // Set loading state
