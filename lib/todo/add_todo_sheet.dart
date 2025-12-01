@@ -173,7 +173,7 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
                   // But lists might be loading.
                   
                   return DropdownButtonFormField<String?>(
-                    value: _selectedListId,
+                    initialValue: _selectedListId,
                     decoration: InputDecoration(
                       labelText: 'List',
                       border: InputBorder.none,
